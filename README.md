@@ -1,2 +1,2 @@
 
-![alt text](TEASER.pdf)
+![alt text](TEASER.png)
