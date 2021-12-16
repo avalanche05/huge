@@ -1,2 +1,1 @@
-
 ![alt text](TEASER.png)
