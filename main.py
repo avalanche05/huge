@@ -69,7 +69,7 @@ class Button(pygame.sprite.Sprite):
 
     def update_text(self, text, bg):
         # текст
-        font = pygame.font.Font(None, 32)
+        font = pygame.font.Font(None, 60)
         self.render_text = font.render(text, True, 'black')
         # размеры
         self.size = self.render_text.get_size()
@@ -159,7 +159,7 @@ def terminate():
 def main():
     settings = Settings((WIDTH - 64, 0), SETTINGS)
     FunctionalButton('Play', (WIDTH // 2, HEIGHT // 2), START_SPRITES, function=terminate)
-    TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES, start_text='sersad')
+    TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES, start_text='user')
     ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES, args=['<Easy>', '<Hard>'])
     FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
     cur_pos = 0
