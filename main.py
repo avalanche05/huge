@@ -11,7 +11,8 @@ SETTINGS_SPRITES = pygame.sprite.Group()
 BLACK = pygame.Color(0, 0, 0)
 
 
-def load_image(name, colorkey=None):
+def load_image(name: str, colorkey: int = None):
+    """Скачивание изображения"""
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
@@ -37,10 +38,11 @@ def draw(screen):
 
 
 class Settings(pygame.sprite.Sprite):
-    settings = load_image("gear.png")
-    close = load_image("close.png")
+    """Настроки"""
+    settings = load_image("gear.png")  # шестерёнка
+    close = load_image("close.png")  # крестик
 
-    def __init__(self, pos, *groups):
+    def __init__(self, pos: tuple, *groups: pygame.sprite.Group):
         super().__init__(*groups)
         self.image = Settings.settings
         self.rect = self.image.get_rect()
@@ -61,7 +63,9 @@ class Settings(pygame.sprite.Sprite):
 
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self, text, pos, *groups):
+    """Базовый класс любой кнопки"""
+
+    def __init__(self, text: str, pos: tuple, *groups: pygame.sprite.Group):
         super().__init__(*groups)
         self.text = text
         self.x, self.y = pos
@@ -87,7 +91,9 @@ class Button(pygame.sprite.Sprite):
 
 
 class TextButton(Button):
-    def __init__(self, text, pos, *groups, start_text):
+    """Кнопка ввода информации"""
+
+    def __init__(self, text: str, pos: tuple, *groups: pygame.sprite.Group, start_text: str):
         super().__init__(text, pos, *groups)
         self.added_text = start_text
         self.activated = False
@@ -112,7 +118,9 @@ class TextButton(Button):
 
 
 class ChooseButton(Button):
-    def __init__(self, text, pos, *groups, args):
+    """Кнопка выбора определённого параметра"""
+
+    def __init__(self, text: str, pos: tuple, *groups: pygame.sprite.Group, args: iter):
         super().__init__(text, pos, *groups)
         self.arguments = args
         self.cur_argument = 0
@@ -139,7 +147,9 @@ class ChooseButton(Button):
 
 
 class FunctionalButton(Button):
-    def __init__(self, text, pos, *groups, function):
+    """Кнопка, выполняющая определённую функцию при нажатии"""
+
+    def __init__(self, text: str, pos: tuple, *groups: pygame.sprite.Group, function):
         super().__init__(text, pos, *groups)
         self.function = function
         self.update_text(self.text, BLACK)
@@ -151,11 +161,13 @@ class FunctionalButton(Button):
 
 
 def terminate():
+    """Выход из игры"""
     pygame.quit()
     sys.exit()
 
 
 def started_window():
+    """Работа стартового окна"""
     fps = 60
     clock = pygame.time.Clock()
     running = True
