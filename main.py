@@ -8,7 +8,6 @@ SCREEN = pygame.display.set_mode(SIZE)
 SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES = pygame.sprite.Group()
-PAGE = {0: SETTINGS}
 BLACK = (0, 0, 0)
 
 
@@ -39,7 +38,7 @@ def draw(screen):
 
 class Settings(pygame.sprite.Sprite):
     settings = load_image("gear.png")
-    close = load_image("img.png")
+    close = load_image("close.png")
 
     def __init__(self, pos, *groups):
         super().__init__(*groups)
@@ -156,34 +155,33 @@ def terminate():
     sys.exit()
 
 
-def main():
-    settings = Settings((WIDTH - 64, 0), SETTINGS)
-    FunctionalButton('Play', (WIDTH // 2, HEIGHT // 2), START_SPRITES, function=terminate)
-    TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES, start_text='user')
-    ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES, args=['<Easy>', '<Hard>'])
-    FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
-    cur_pos = 0
+def started_window():
     fps = 60
     clock = pygame.time.Clock()
     running = True
     while running:
-        need_sprites = []
-        main_sprites = PAGE[cur_pos]
-        if cur_pos == 0:
-            need_sprites.append(settings.position())
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            main_sprites.update(event)
-            for elem in need_sprites:
-                elem.update(event)
+            settings.position().update(event)
+            SETTINGS.update(event)
         draw(SCREEN)
-        main_sprites.draw(SCREEN)
-        for elem in need_sprites:
-            elem.draw(SCREEN)
+        SETTINGS.draw(SCREEN)
+        settings.position().draw(SCREEN)
         clock.tick(fps)
         pygame.display.flip()
     pygame.quit()
+
+
+settings = Settings((WIDTH - 64, 0), SETTINGS)
+FunctionalButton('Play', (WIDTH // 2, HEIGHT // 2), START_SPRITES, function=terminate)
+TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES, start_text='user')
+ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES, args=['<Easy>', '<Hard>'])
+FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
+
+
+def main():
+    started_window()
 
 
 if __name__ == '__main__':
