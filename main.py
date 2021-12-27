@@ -8,7 +8,7 @@ SCREEN = pygame.display.set_mode(SIZE)
 SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES = pygame.sprite.Group()
-BLACK = (0, 0, 0)
+BLACK = pygame.Color(0, 0, 0)
 
 
 def load_image(name, colorkey=None):
