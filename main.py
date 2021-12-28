@@ -8,6 +8,7 @@ SCREEN = pygame.display.set_mode(SIZE)
 SPEED = 5
 FPS = 60
 CLOCK = pygame.time.Clock()
+PLACE_IN_IMAGE = {'Enemy': [[2, 1, 260, 0, 444, 100]]}
 SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES = pygame.sprite.Group()
@@ -44,25 +45,25 @@ class Enemy(pygame.sprite.Sprite):
     """Враг(птичка)"""
     image = load_image('all_dino_sprites.png')
 
-    def __init__(self, pos: tuple, direction: int, columns: int, rows: int, start_x: int,
-                 start_y: int, stop_x: int, stop_y: int, *groups: pygame.sprite.Group):
+    def __init__(self, pos: tuple, direction: int, *groups: pygame.sprite.Group):
         super().__init__(*groups)
         self.states = []
-        self.cut_sheet(Enemy.image, columns, rows, start_x, start_y, stop_x, stop_y)
+        self.cut_sheet(Enemy.image, PLACE_IN_IMAGE['Enemy'])
         self.cur_state = 0
         self.image = self.states[self.cur_state]
         self.direction = direction
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
-    def cut_sheet(self, sheet, columns, rows, start_x, start_y, stop_x, stop_y):
-        self.rect = pygame.Rect(0, 0, (stop_x - start_x) // columns,
-                                (stop_y - start_y) // rows)
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (start_x + self.rect.w * i, start_y + self.rect.h * j)
-                self.states.append(pygame.transform.scale(sheet.subsurface(pygame.Rect(
-                    frame_location, self.rect.size)), (50, 50)))
+    def cut_sheet(self, sheet, value):
+        for columns, rows, start_x, start_y, stop_x, stop_y in value:
+            self.rect = pygame.Rect(0, 0, (stop_x - start_x) // columns,
+                                    (stop_y - start_y) // rows)
+            for j in range(rows):
+                for i in range(columns):
+                    frame_location = (start_x + self.rect.w * i, start_y + self.rect.h * j)
+                    self.states.append(pygame.transform.scale(sheet.subsurface(pygame.Rect(
+                        frame_location, self.rect.size)), (50, 50)))
 
     def update(self):
         self.rect.x += self.direction
