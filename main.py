@@ -5,6 +5,9 @@ import pygame
 pygame.init()
 SIZE = WIDTH, HEIGHT = 1920, 1080
 SCREEN = pygame.display.set_mode(SIZE)
+SPEED = 5
+FPS = 60
+CLOCK = pygame.time.Clock()
 SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES = pygame.sprite.Group()
@@ -35,6 +38,37 @@ def draw(screen):
     # text_x = WIDTH // 2 - text.get_width() // 2
     # text_y = HEIGHT // 2 - text.get_height() // 2
     # screen.blit(text, (text_x, text_y))
+
+
+class Enemy(pygame.sprite.Sprite):
+    """Враг(птичка)"""
+    image = load_image('all_dino_sprites.png')
+
+    def __init__(self, pos: tuple, direction: int, columns: int, rows: int, start_x: int,
+                 start_y: int, stop_x: int, stop_y: int, *groups: pygame.sprite.Group):
+        super().__init__(*groups)
+        self.states = []
+        self.cut_sheet(Enemy.image, columns, rows, start_x, start_y, stop_x, stop_y)
+        self.cur_state = 0
+        self.image = self.states[self.cur_state]
+        self.direction = direction
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+    def cut_sheet(self, sheet, columns, rows, start_x, start_y, stop_x, stop_y):
+        self.rect = pygame.Rect(0, 0, (stop_x - start_x) // columns,
+                                (stop_y - start_y) // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (start_x + self.rect.w * i, start_y + self.rect.h * j)
+                self.states.append(pygame.transform.scale(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)), (50, 50)))
+
+    def update(self):
+        self.rect.x += self.direction
+        self.cur_state += 1
+        self.cur_state %= FPS // SPEED * 2
+        self.image = self.states[self.cur_state // (FPS // SPEED)]
 
 
 class Settings(pygame.sprite.Sprite):
@@ -168,25 +202,31 @@ def terminate():
 
 def started_window():
     """Работа стартового окна"""
-    fps = 60
-    clock = pygame.time.Clock()
-    running = True
-    while running:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                terminate()
             settings.position().update(event)
             SETTINGS.update(event)
         draw(SCREEN)
         SETTINGS.draw(SCREEN)
         settings.position().draw(SCREEN)
-        clock.tick(fps)
+        CLOCK.tick(FPS)
         pygame.display.flip()
-    pygame.quit()
+
+
+def game_window():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+        draw(SCREEN)
+        CLOCK.tick(FPS)
+        pygame.display.flip()
 
 
 settings = Settings((WIDTH - 64, 0), SETTINGS)
-FunctionalButton('Play', (WIDTH // 2, HEIGHT // 2), START_SPRITES, function=terminate)
+FunctionalButton('Play', (WIDTH // 2, HEIGHT // 2), START_SPRITES, function=game_window)
 TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES, start_text='user')
 ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES, args=['<Easy>', '<Hard>'])
 FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
