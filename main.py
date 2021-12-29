@@ -1,24 +1,32 @@
 import os
 import sys
+from random import randint
 
 import pygame
 
 pygame.init()
 SIZE = WIDTH, HEIGHT = 1920, 1080
 SCREEN = pygame.display.set_mode(SIZE)
-SPEED = 5
+ENEMY_SPEED = 5
+DINO_SPEED = 10
 FPS = 60
 CLOCK = pygame.time.Clock()
-PLACE_IN_IMAGE = {'Enemy': [[2, 1, 260, 0, 444, 100]]}
+PLACE_IN_IMAGE = {'Enemy': [[2, 1, 260, 0, 444, 100, 50, 50]],
+                  'Dino': [[6, 1, 1678, 0, 2208, 100, 88, 100],
+                           [2, 1, 2209, 0, 2445, 100, 118, 100]],
+                  'Pole': [[1, 1, 0, 100, 2446, 130, 2446, 30]]}
 SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES = pygame.sprite.Group()
+POLES = pygame.sprite.Group()
 BIRDS = pygame.sprite.Group()
+DINO = pygame.sprite.Group()
+WHITE = pygame.Color(255, 255, 255)
 BLACK = pygame.Color(0, 0, 0)
 BACKGROUND = pygame.Color(247, 247, 247)
 
 
-def load_image(name: str, colorkey: int = None):
+def load_image(name: str, colorkey=None):
     """Скачивание изображения"""
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
@@ -41,9 +49,9 @@ def terminate():
     sys.exit()
 
 
-def cut_sheet(sheet, value, width, height):
+def cut_sheet(sheet, value):
     states = []
-    for columns, rows, start_x, start_y, stop_x, stop_y in value:
+    for columns, rows, start_x, start_y, stop_x, stop_y, width, height in value:
         rect = pygame.Rect(0, 0, (stop_x - start_x) // columns,
                            (stop_y - start_y) // rows)
         for j in range(rows):
@@ -54,15 +62,76 @@ def cut_sheet(sheet, value, width, height):
     return states
 
 
+class Dino(pygame.sprite.Sprite):
+    """Друг(диинозаврик)"""
+    image = load_image('all_dino_sprites.png', WHITE)
+
+    def __init__(self, pos: tuple, *groups: pygame.sprite.Group):
+        super().__init__(*groups)
+        self.situations = {'stay': [0, 0], 'run': [2, 3], 'sit': [6, 7], 'dead': [4, 4]}
+        self.states = cut_sheet(Dino.image, PLACE_IN_IMAGE['Dino'])
+        self.cur_state = 0
+        self.step = 10
+        self.jump_step = -15
+        self.vertical_speed = 0
+        self.gravity = 1
+        self.flip = False
+        self.image = self.states[self.situations['stay'][0]]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+    def update(self):
+        keys = pygame.key.get_pressed()
+        situation = 'stay'
+        if keys[pygame.K_LEFT]:
+            self.rect.x -= self.step
+            situation = 'run'
+            self.flip = True
+        if keys[pygame.K_RIGHT]:
+            situation = 'run'
+            self.rect.x += self.step
+            self.flip = False
+        if keys[pygame.K_UP]:
+            for sprite in POLES:
+                if pygame.sprite.collide_mask(self, sprite):
+                    self.vertical_speed = self.jump_step
+                    break
+        if keys[pygame.K_DOWN]:
+            situation = 'sit'
+        self.image = pygame.transform.flip(
+            self.states[self.situations[situation][self.cur_state // (FPS // DINO_SPEED)]],
+            self.flip, False)
+        if self.vertical_speed < 0:
+            self.rect.y += self.vertical_speed
+        else:
+            for _ in range(self.vertical_speed):
+                for sprite in POLES:
+                    if pygame.sprite.collide_mask(self, sprite):
+                        break
+                else:
+                    self.rect.y += 1
+        for sprite in POLES:
+            if pygame.sprite.collide_mask(self, sprite):
+                self.vertical_speed = 0
+                break
+        else:
+            self.vertical_speed += self.gravity
+        self.cur_state += 1
+        self.cur_state %= FPS // DINO_SPEED * 2
+
+
 class Enemy(pygame.sprite.Sprite):
     """Враг(птичка)"""
-    image = load_image('all_dino_sprites.png')
+    image = load_image('all_dino_sprites.png', WHITE)
 
     def __init__(self, pos: tuple, direction: int, *groups: pygame.sprite.Group):
         super().__init__(*groups)
-        self.states = cut_sheet(Enemy.image, PLACE_IN_IMAGE['Enemy'], 50, 50)
+        self.states = cut_sheet(Enemy.image, PLACE_IN_IMAGE['Enemy'])
         self.cur_state = 0
         self.image = self.states[self.cur_state]
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.direction = direction
         self.rect.x = pos[0]
@@ -70,18 +139,33 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += self.direction
-        if self.rect.x <= 0 or self.rect.x >= WIDTH - 50:
+        if self.rect.x <= 0 or self.rect.x >= WIDTH - self.rect.width:
             self.rect.x -= self.direction
             self.direction *= -1
             for i in range(len(self.states)):
                 self.states[i] = pygame.transform.flip(self.states[i], True, False)
         self.cur_state += 1
-        self.cur_state %= FPS // SPEED * 2
-        self.image = self.states[self.cur_state // (FPS // SPEED)]
+        self.cur_state %= FPS // ENEMY_SPEED * 2
+        self.image = self.states[self.cur_state // (FPS // ENEMY_SPEED)]
+
+
+class Pole(pygame.sprite.Sprite):
+    """Жёрдочка"""
+    image = load_image('all_dino_sprites.png', WHITE)
+
+    def __init__(self, pos: tuple, length: int, *groups: pygame.sprite.Group):
+        super().__init__(*groups)
+        raw = cut_sheet(Enemy.image, PLACE_IN_IMAGE['Pole'])[0]
+        start_pos = randint(0, raw.get_width() - length)
+        self.image = raw.subsurface(pygame.Rect(start_pos, 0, length, 30))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
 
 
 class Settings(pygame.sprite.Sprite):
-    """Настроки"""
+    """Настройки"""
     settings = load_image("gear.png")  # шестерёнка
     close = load_image("close.png")  # крестик
 
@@ -97,7 +181,6 @@ class Settings(pygame.sprite.Sprite):
                 self.rect.collidepoint(args[0].pos):
             if self.image == Settings.settings:
                 self.image = Settings.close
-
             else:
                 self.image = Settings.settings
 
@@ -219,6 +302,9 @@ def game_window():
             if event.type == pygame.QUIT:
                 terminate()
         SCREEN.fill(BACKGROUND)
+        POLES.draw(SCREEN)
+        DINO.update()
+        DINO.draw(SCREEN)
         BIRDS.update()
         BIRDS.draw(SCREEN)
         CLOCK.tick(FPS)
@@ -230,6 +316,10 @@ FunctionalButton('Play', (WIDTH // 2, HEIGHT // 2), START_SPRITES, function=game
 TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES, start_text='user')
 ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES, args=['<Easy>', '<Hard>'])
 FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
+Enemy((0.15, 0), -10, BIRDS)
+Dino((100, 0), DINO)
+Pole((0, 100), 1000, POLES)
+Pole((200, 1005), 200, POLES)
 
 
 def main():
