@@ -13,6 +13,7 @@ SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES = pygame.sprite.Group()
 BLACK = pygame.Color(0, 0, 0)
+BACKGROUND = pygame.Color(247, 247, 247)
 
 
 def load_image(name: str, colorkey: int = None):
@@ -30,15 +31,6 @@ def load_image(name: str, colorkey: int = None):
     else:
         image = image.convert_alpha()
     return image
-
-
-def draw(screen):
-    screen.fill('#c0e6d7')
-    # font = pygame.font.Font(None, 50)
-    # text = font.render("the huge.", True, 'black')
-    # text_x = WIDTH // 2 - text.get_width() // 2
-    # text_y = HEIGHT // 2 - text.get_height() // 2
-    # screen.blit(text, (text_x, text_y))
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -108,7 +100,7 @@ class Button(pygame.sprite.Sprite):
     def update_text(self, text, bg):
         # текст
         font = pygame.font.Font(None, 60)
-        self.render_text = font.render(text, True, 'black')
+        self.render_text = font.render(text, True, BLACK)
         # размеры
         self.size = self.render_text.get_size()
         self.size = self.size[0] + 16, self.size[1] + 4
@@ -116,13 +108,8 @@ class Button(pygame.sprite.Sprite):
         # итоговая картинка
         self.image = pygame.Surface(self.size)
         self.image.fill(bg)
-        self.image.fill('#c0e6d7', rect=(2, 2, self.size[0] - 4, self.size[1] - 4))
+        self.image.fill(BACKGROUND, rect=(2, 2, self.size[0] - 4, self.size[1] - 4))
         self.image.blit(self.render_text, (8, 2))
-
-    def update(self, *args):
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
-                self.rect.collidepoint(args[0].pos):
-            pass
 
 
 class TextButton(Button):
@@ -209,7 +196,7 @@ def started_window():
                 terminate()
             settings.position().update(event)
             SETTINGS.update(event)
-        draw(SCREEN)
+        SCREEN.fill(BACKGROUND)
         SETTINGS.draw(SCREEN)
         settings.position().draw(SCREEN)
         CLOCK.tick(FPS)
@@ -217,11 +204,12 @@ def started_window():
 
 
 def game_window():
+    """Игровой процесс"""
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-        draw(SCREEN)
+        SCREEN.fill(BACKGROUND)
         CLOCK.tick(FPS)
         pygame.display.flip()
 
