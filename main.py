@@ -100,6 +100,11 @@ class Dino(pygame.sprite.Sprite):
                     break
         if keys[pygame.K_DOWN]:
             situation = 'sit'
+            for sprite in POLES:
+                if pygame.sprite.collide_mask(self, sprite):
+                    break
+            else:
+                self.vertical_speed += 5
         self.image = pygame.transform.flip(
             self.states[self.situations[situation][self.cur_state // (FPS // DINO_SPEED)]],
             self.flip, False)
@@ -318,7 +323,7 @@ ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES, args=['<E
 FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
 Enemy((0.15, 0), -10, BIRDS)
 Dino((100, 0), DINO)
-Pole((0, 100), 1000, POLES)
+Pole((0, 300), 1920, POLES)
 Pole((200, 1005), 200, POLES)
 
 
