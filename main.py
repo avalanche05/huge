@@ -1,5 +1,6 @@
 import os
 import sys
+
 import pygame
 
 pygame.init()
@@ -12,6 +13,7 @@ PLACE_IN_IMAGE = {'Enemy': [[2, 1, 260, 0, 444, 100]]}
 SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES = pygame.sprite.Group()
+BIRDS = pygame.sprite.Group()
 BLACK = pygame.Color(0, 0, 0)
 BACKGROUND = pygame.Color(247, 247, 247)
 
@@ -33,32 +35,46 @@ def load_image(name: str, colorkey: int = None):
     return image
 
 
+def terminate():
+    """Выход из игры"""
+    pygame.quit()
+    sys.exit()
+
+
+def cut_sheet(sheet, value, width, height):
+    states = []
+    for columns, rows, start_x, start_y, stop_x, stop_y in value:
+        rect = pygame.Rect(0, 0, (stop_x - start_x) // columns,
+                           (stop_y - start_y) // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (start_x + rect.w * i, start_y + rect.h * j)
+                states.append(pygame.transform.scale(sheet.subsurface(pygame.Rect(
+                    frame_location, rect.size)), (width, height)))
+    return states
+
+
 class Enemy(pygame.sprite.Sprite):
     """Враг(птичка)"""
     image = load_image('all_dino_sprites.png')
 
     def __init__(self, pos: tuple, direction: int, *groups: pygame.sprite.Group):
         super().__init__(*groups)
-        self.states = []
-        self.cut_sheet(Enemy.image, PLACE_IN_IMAGE['Enemy'])
+        self.states = cut_sheet(Enemy.image, PLACE_IN_IMAGE['Enemy'], 50, 50)
         self.cur_state = 0
         self.image = self.states[self.cur_state]
+        self.rect = self.image.get_rect()
         self.direction = direction
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
-    def cut_sheet(self, sheet, value):
-        for columns, rows, start_x, start_y, stop_x, stop_y in value:
-            self.rect = pygame.Rect(0, 0, (stop_x - start_x) // columns,
-                                    (stop_y - start_y) // rows)
-            for j in range(rows):
-                for i in range(columns):
-                    frame_location = (start_x + self.rect.w * i, start_y + self.rect.h * j)
-                    self.states.append(pygame.transform.scale(sheet.subsurface(pygame.Rect(
-                        frame_location, self.rect.size)), (50, 50)))
-
     def update(self):
         self.rect.x += self.direction
+        if self.rect.x <= 0 or self.rect.x >= WIDTH - 50:
+            self.rect.x -= self.direction
+            self.direction *= -1
+            for i in range(len(self.states)):
+                self.states[i] = pygame.transform.flip(self.states[i], True, False)
         self.cur_state += 1
         self.cur_state %= FPS // SPEED * 2
         self.image = self.states[self.cur_state // (FPS // SPEED)]
@@ -182,12 +198,6 @@ class FunctionalButton(Button):
             self.function()
 
 
-def terminate():
-    """Выход из игры"""
-    pygame.quit()
-    sys.exit()
-
-
 def started_window():
     """Работа стартового окна"""
     while True:
@@ -204,12 +214,13 @@ def started_window():
 
 
 def game_window():
-    """Игровой процесс"""
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
         SCREEN.fill(BACKGROUND)
+        BIRDS.update()
+        BIRDS.draw(SCREEN)
         CLOCK.tick(FPS)
         pygame.display.flip()
 
