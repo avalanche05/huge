@@ -225,6 +225,7 @@ class Button(pygame.sprite.Sprite):
         self.x, self.y = pos
 
     def update_text(self, text, bg):
+        self.text = text
         # текст
         font = pygame.font.Font(None, 60)
         self.render_text = font.render(text, True, BLACK)
@@ -348,7 +349,6 @@ FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, func
 Enemy((0.15, 0), -10, BIRDS)
 Dino((100, 0), DINO)
 Pole((0, 300), 1920, POLES)
-Pole((200, 1005), 200, POLES)
 Tree((10, 230), TREES)
 
 
