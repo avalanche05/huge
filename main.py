@@ -7,6 +7,7 @@ import pygame
 pygame.init()
 SIZE = WIDTH, HEIGHT = 1920, 1080
 SCREEN = pygame.display.set_mode(SIZE)
+GAME_TITLE = 'the huge.'
 ENEMY_SPEED = 5
 DINO_SPEED = 10
 FPS = 60
@@ -26,6 +27,13 @@ DINO = pygame.sprite.Group()
 WHITE = pygame.Color(255, 255, 255)
 BLACK = pygame.Color(0, 0, 0)
 BACKGROUND = pygame.Color(247, 247, 247)
+LEVEL_COUNT = 6
+LEVEL_HEIGHT = 180
+MAX_POLE_LENGTH = 360
+MIN_POLE_LENGTH = 108
+MAX_SPACE_LENGTH = 360
+MIN_SPACE_LENGTH = 140
+MAX_GAP = 10
 
 
 def load_image(name: str, colorkey=None):
@@ -74,13 +82,13 @@ class Dino(pygame.sprite.Sprite):
         self.states = cut_sheet(Dino.image, PLACE_IN_IMAGE['Dino'])
         self.cur_state = 0
         self.step = 10
-        self.jump_step = -15
+        self.jump_step = -25
         self.vertical_speed = 0
         self.gravity = 1
         self.flip = False
         self.image = self.states[self.situations['stay'][0]]
         self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
+        self.rect = self.mask.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
@@ -88,45 +96,66 @@ class Dino(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         situation = 'stay'
         if keys[pygame.K_LEFT]:
-            self.rect.x -= self.step
             situation = 'run'
+            flag = self.cross(POLES)
+            self.rect.x -= self.step
+            if self.cross(POLES) and not flag:
+                self.rect.x += self.step
             self.flip = True
         if keys[pygame.K_RIGHT]:
             situation = 'run'
+            flag = self.cross(POLES)
             self.rect.x += self.step
+            if self.cross(POLES) and not flag:
+                self.rect.x -= self.step
             self.flip = False
         if keys[pygame.K_UP]:
-            for sprite in POLES:
-                if pygame.sprite.collide_mask(self, sprite):
-                    self.vertical_speed = self.jump_step
-                    break
+            if self.cross(POLES):
+                self.vertical_speed = self.jump_step
         if keys[pygame.K_DOWN]:
             situation = 'sit'
-            for sprite in POLES:
-                if pygame.sprite.collide_mask(self, sprite):
-                    break
-            else:
+            if not self.cross(POLES):
                 self.vertical_speed += 5
         self.image = pygame.transform.flip(
             self.states[self.situations[situation][self.cur_state // (FPS // DINO_SPEED)]],
             self.flip, False)
+        self.mask = pygame.mask.from_surface(self.image)
         if self.vertical_speed < 0:
-            self.rect.y += self.vertical_speed
-        else:
-            for _ in range(self.vertical_speed):
-                for sprite in POLES:
-                    if pygame.sprite.collide_mask(self, sprite):
-                        break
-                else:
+            for _ in range(abs(self.vertical_speed)):
+                self.rect.y -= 1
+                if self.cross(POLES):
+                    self.vertical_speed = 0
                     self.rect.y += 1
-        for sprite in POLES:
-            if pygame.sprite.collide_mask(self, sprite):
-                self.vertical_speed = 0
-                break
+                    break
         else:
+            for _ in range(abs(self.vertical_speed)):
+                self.rect.y += 1
+                if self.cross(POLES):
+                    self.vertical_speed = 0
+                    break
+        if not self.cross(POLES):
             self.vertical_speed += self.gravity
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
+
+    def cross(self, group):
+        for sprite in group:
+            if pygame.sprite.collide_mask(self, sprite):
+                x1, y1, w1, h1 = self.rect
+                x2, y2, w2, h2 = sprite.rect
+                if x1 + 42 < x2 and y1 + h1 < y2 + 100:
+                    for i in range(self.rect.x, x2 - w1 + 1, -1):
+                        self.rect.x -= 1
+
+                        draw_screen()
+                        pygame.display.flip()
+                if x1 + w1 - 42 > x2 + w2 and y1 + h1 < y2 + 100:
+                    for i in range(self.rect.x, x2 + w2 + 1):
+                        self.rect.x += 1
+                        draw_screen()
+                        pygame.display.flip()
+                return True
+        return False
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -139,7 +168,7 @@ class Enemy(pygame.sprite.Sprite):
         self.cur_state = 0
         self.image = self.states[self.cur_state]
         self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
+        self.rect = pygame.Rect(0, 0, self.image.get_width(), 1)
         self.direction = direction
         self.rect.x = pos[0]
         self.rect.y = pos[1]
@@ -154,6 +183,7 @@ class Enemy(pygame.sprite.Sprite):
         self.cur_state += 1
         self.cur_state %= FPS // ENEMY_SPEED * 2
         self.image = self.states[self.cur_state // (FPS // ENEMY_SPEED)]
+        self.mask = pygame.mask.from_surface(self.image)
 
 
 class Pole(pygame.sprite.Sprite):
@@ -165,7 +195,7 @@ class Pole(pygame.sprite.Sprite):
         raw = cut_sheet(Enemy.image, PLACE_IN_IMAGE['Pole'])[0]
         start_pos = randint(0, raw.get_width() - length)
         self.image = raw.subsurface(pygame.Rect(start_pos, 0, length, 30))
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = pygame.mask.from_surface(raw.subsurface(pygame.Rect(0, 0, length, 15)))
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
@@ -222,10 +252,11 @@ class Button(pygame.sprite.Sprite):
     def __init__(self, text: str, pos: tuple, *groups: pygame.sprite.Group):
         super().__init__(*groups)
         self.text = text
+        self.current_text = text
         self.x, self.y = pos
 
     def update_text(self, text, bg):
-        self.text = text
+        self.current_text = text
         # текст
         font = pygame.font.Font(None, 60)
         self.render_text = font.render(text, True, BLACK)
@@ -330,15 +361,38 @@ def game_window():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-        SCREEN.fill(BACKGROUND)
-        POLES.draw(SCREEN)
-        TREES.draw(SCREEN)
         DINO.update()
-        DINO.draw(SCREEN)
         BIRDS.update()
-        BIRDS.draw(SCREEN)
+        draw_screen()
         CLOCK.tick(FPS)
         pygame.display.flip()
+
+
+def generate_level():
+    for level in range(1, LEVEL_COUNT):
+        current_x = 0
+        is_pole = bool(randint(0, 1))
+        d = {False: (MIN_SPACE_LENGTH, MAX_SPACE_LENGTH),
+             True: (MIN_POLE_LENGTH, MAX_POLE_LENGTH)}
+        while d[is_pole][0] <= WIDTH - current_x:
+            length = randint(d[is_pole][0], min(d[is_pole][1], WIDTH - current_x))
+            gap = randint(-MAX_GAP, MAX_GAP)
+            if is_pole:
+                Pole((current_x, level * LEVEL_HEIGHT - MAX_GAP + gap), length, POLES)
+            current_x += length
+            is_pole = not is_pole
+        else:
+            gap = randint(-MAX_GAP, MAX_GAP)
+            if is_pole:
+                Pole((current_x, level * LEVEL_HEIGHT - MAX_GAP + gap), WIDTH - current_x, POLES)
+
+
+def draw_screen():
+    SCREEN.fill(BACKGROUND)
+    POLES.draw(SCREEN)
+    TREES.draw(SCREEN)
+    DINO.draw(SCREEN)
+    BIRDS.draw(SCREEN)
 
 
 settings = Settings((WIDTH - 64, 0), SETTINGS)
@@ -348,11 +402,11 @@ ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES, args=['<E
 FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
 Enemy((0.15, 0), -10, BIRDS)
 Dino((100, 0), DINO)
-Pole((0, 300), 1920, POLES)
-Tree((10, 230), TREES)
 
 
 def main():
+    pygame.display.set_caption(GAME_TITLE)
+    generate_level()
     started_window()
 
 
