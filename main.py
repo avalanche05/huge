@@ -1,6 +1,6 @@
 import os
 import sys
-from random import randint
+from random import randint, choice
 
 import pygame
 
@@ -14,11 +14,13 @@ CLOCK = pygame.time.Clock()
 PLACE_IN_IMAGE = {'Enemy': [[2, 1, 260, 0, 444, 100, 50, 50]],
                   'Dino': [[6, 1, 1678, 0, 2208, 100, 88, 100],
                            [2, 1, 2209, 0, 2445, 100, 118, 100]],
-                  'Pole': [[1, 1, 0, 100, 2446, 130, 2446, 30]]}
+                  'Pole': [[1, 1, 0, 100, 2446, 130, 2446, 30]],
+                  'Tree': [[6, 1, 446, 0, 650, 73, 40, 70]]}
 SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES = pygame.sprite.Group()
 POLES = pygame.sprite.Group()
+TREES = pygame.sprite.Group()
 BIRDS = pygame.sprite.Group()
 DINO = pygame.sprite.Group()
 WHITE = pygame.Color(255, 255, 255)
@@ -169,6 +171,27 @@ class Pole(pygame.sprite.Sprite):
         self.rect.y = pos[1]
 
 
+class Tree(pygame.sprite.Sprite):
+    """Дерево"""
+    image = load_image('all_dino_sprites.png', WHITE)
+
+    def __init__(self, pos: tuple, *groups: pygame.sprite.Group):
+        super().__init__(*groups)
+        self.image = choice(cut_sheet(Enemy.image, PLACE_IN_IMAGE['Tree']))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+        while True:
+            for elem in POLES:
+                if pygame.sprite.collide_mask(self, elem):
+                    break
+            else:
+                self.rect.y += 1
+                continue
+            break
+
+
 class Settings(pygame.sprite.Sprite):
     """Настройки"""
     settings = load_image("gear.png")  # шестерёнка
@@ -308,6 +331,7 @@ def game_window():
                 terminate()
         SCREEN.fill(BACKGROUND)
         POLES.draw(SCREEN)
+        TREES.draw(SCREEN)
         DINO.update()
         DINO.draw(SCREEN)
         BIRDS.update()
@@ -325,6 +349,7 @@ Enemy((0.15, 0), -10, BIRDS)
 Dino((100, 0), DINO)
 Pole((0, 300), 1920, POLES)
 Pole((200, 1005), 200, POLES)
+Tree((10, 230), TREES)
 
 
 def main():
