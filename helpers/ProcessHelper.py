@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, BIRDS, POLES, TREES
+from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, BIRDS, POLES, TREES, BARRIERS
 from widgets import settings
 
 
@@ -41,6 +41,7 @@ def game_window():
 
 def draw_screen():
     SCREEN.fill(BACKGROUND)
+    BARRIERS.draw(SCREEN)
     POLES.draw(SCREEN)
     TREES.draw(SCREEN)
     DINO.draw(SCREEN)
