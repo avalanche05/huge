@@ -27,6 +27,11 @@ def started_window():
         pygame.display.flip()
 
 
+def update_screen():
+    CLOCK.tick(FPS)
+    pygame.display.flip()
+
+
 def game_window():
     while True:
         for event in pygame.event.get():
@@ -34,9 +39,8 @@ def game_window():
                 terminate()
         DINO.update()
         BIRDS.update()
+        update_screen()
         draw_screen()
-        CLOCK.tick(FPS)
-        pygame.display.flip()
 
 
 def draw_screen():

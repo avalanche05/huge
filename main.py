@@ -16,7 +16,7 @@ FunctionalButton('Play', (WIDTH // 2, HEIGHT // 2), START_SPRITES, function=game
 TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES, start_text='user')
 ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES, args=['<Easy>', '<Hard>'])
 FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
-Enemy((0.15, 0), -10, BIRDS)
+
 Dino((100, 0), DINO)
 
 

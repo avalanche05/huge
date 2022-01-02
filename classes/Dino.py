@@ -54,6 +54,7 @@ class Dino(pygame.sprite.Sprite):
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
 
+
     def level_update(self, up, down, left, right):
         situation = 'stay'
         if left:
@@ -116,7 +117,7 @@ class Dino(pygame.sprite.Sprite):
                 x1, y1, w1, h1 = self.rect
                 x2, y2, w2, h2 = sprite.rect
                 if x1 + 42 < x2 and y1 + h1 < y2 + 100:
-                    for i in range(self.rect.x, x2 - w1 - 1, -1):
+                    for i in range(self.rect.x, x2 - w1 + 1, -1):
                         self.rect.x -= 1
 
                         draw_screen()
