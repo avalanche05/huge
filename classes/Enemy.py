@@ -12,7 +12,10 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__(*groups)
         self.states = cut_sheet(Enemy.image, PLACE_IN_IMAGE['Enemy'])
         self.cur_state = 0
-        self.image = pygame.transform.flip(self.states[self.cur_state], is_start, False)
+        if direction > 0:
+            for i in range(len(self.states)):
+                self.states[i] = pygame.transform.flip(self.states[i], True, False)
+        self.image = self.states[self.cur_state]
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = pygame.Rect(0, 0, self.image.get_width(), 1)
         self.direction = direction

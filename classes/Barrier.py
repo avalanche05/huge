@@ -23,12 +23,6 @@ class Barrier(pygame.sprite.Sprite):
         # принято, что при инициализации барьера, мы учитываем его минимальный размер - 40
         self.rect.y = pos[1] - size + 70
 
-        # при использовании барьера в стартовом окне, конструкция ниже не нужна
-        # в стартовом окне всегда две платформы
-        # проверяем откуда создали барьер
-        if len(POLES) == 2:
-            return
-
         # конструкция ставит препятятвие на платформу
         while True:
             for elem in POLES:
@@ -38,8 +32,10 @@ class Barrier(pygame.sprite.Sprite):
                 self.rect.y += 1
                 continue
             break
+        # сдвиг барьера
+        self.rect.y += randint(0, 15)
 
     def update(self, *args):
         self.rect.x -= int(args[0])
-        if self.rect.x <= -123:
+        if self.rect.x <= -self.rect.width:
             self.kill()

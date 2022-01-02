@@ -13,7 +13,7 @@ class Button(pygame.sprite.Sprite):
         self.x, self.y = pos
 
     def update_text(self, text, bg):
-        self.current_text = text
+        self.current_text = text.split(': ')[1] if ': ' in text else None
         # текст
         font = pygame.font.Font(None, 60)
         self.render_text = font.render(text, True, BLACK)
@@ -26,3 +26,6 @@ class Button(pygame.sprite.Sprite):
         self.image.fill(bg)
         self.image.fill(BACKGROUND, rect=(2, 2, self.size[0] - 4, self.size[1] - 4))
         self.image.blit(self.render_text, (8, 2))
+
+    def get_text(self):
+        return self.current_text

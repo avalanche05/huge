@@ -1,6 +1,6 @@
 import pygame
 
-from constant import WHITE, PLACE_IN_IMAGE, POLES, DINO_SPEED, FPS
+from constant import WHITE, PLACE_IN_IMAGE, POLES, DINO_SPEED, FPS, WIDTH
 from helpers.DataHelper import load_image, cut_sheet
 from helpers.ProcessHelper import draw_screen
 
@@ -54,7 +54,6 @@ class Dino(pygame.sprite.Sprite):
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
 
-
     def level_update(self, up, down, left, right):
         situation = 'stay'
         if left:
@@ -95,8 +94,15 @@ class Dino(pygame.sprite.Sprite):
                 if self.cross(POLES):
                     self.vertical_speed = 0
                     break
+        is_up = False
+        while self.cross(POLES):
+            is_up = True
+            self.rect.y -= 1
+        if is_up:
+            self.rect.y += 1
         if not self.cross(POLES):
             self.vertical_speed += self.gravity
+        self.rect.x %= WIDTH
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
 
@@ -116,16 +122,18 @@ class Dino(pygame.sprite.Sprite):
             if pygame.sprite.collide_mask(self, sprite):
                 x1, y1, w1, h1 = self.rect
                 x2, y2, w2, h2 = sprite.rect
-                if x1 + 42 < x2 and y1 + h1 < y2 + 100:
+                if x1 + 36 < x2 and y1 < y2 - 60:
                     for i in range(self.rect.x, x2 - w1 + 1, -1):
                         self.rect.x -= 1
 
                         draw_screen()
                         pygame.display.flip()
-                if x1 + w1 - 42 > x2 + w2 and y1 + h1 < y2 + 100:
+                    return False
+                if x1 + w1 - 36 > x2 + w2 and y1 < y2 - 60:
                     for i in range(self.rect.x, x2 + w2 + 1):
                         self.rect.x += 1
                         draw_screen()
                         pygame.display.flip()
+                    return False
                 return True
         return False
