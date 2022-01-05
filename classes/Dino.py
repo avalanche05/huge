@@ -124,6 +124,9 @@ class Dino(pygame.sprite.Sprite):
         return False
 
     def update(self, up=False, down=False, left=False, right=False):
+        if self.cross(ENEMIES) or self.cross(BARRIERS):
+            self.set_dead()
+            return True
         keys = pygame.key.get_pressed()
         up |= keys[pygame.K_UP]
         down |= keys[pygame.K_DOWN]

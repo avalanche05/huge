@@ -16,8 +16,9 @@ PLACE_IN_IMAGE = {'Enemy': [[2, 1, 260, 0, 444, 100, 80, 80]],
                            [2, 1, 2209, 0, 2445, 100, 118, 100]],
                   'Pole': [[1, 1, 2, 100, 2402, 130, 2400, 30]],
                   'Tree': [[6, 1, 446, 0, 650, 73, 40, 70]]}
-GENERATE_CHANCE = {'<Easy>': 1 / 500,
-                   '<Hard>': 1 / 250}
+GENERATE_CHANCE = {'<Easy>': (1 / 300, 1 / 300),
+                   '<Medium>': (1 / 225, 1 / 225),
+                   '<Hard>': (1 / 150, 1 / 150)}
 SETTINGS = pygame.sprite.Group()
 START_SPRITES = pygame.sprite.Group()
 SETTINGS_SPRITES: Group = pygame.sprite.Group()

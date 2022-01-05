@@ -7,7 +7,7 @@ from classes.Pole import Pole
 from constant import LEVEL_COUNT, MIN_SPACE_LENGTH, MAX_SPACE_LENGTH, MAX_POLE_LENGTH, \
     MIN_POLE_LENGTH, WIDTH, MAX_GAP, LEVEL_HEIGHT, POLES, BARRIERS, ENEMIES, \
     POLES_GAP, \
-    DINO, BACKGROUND, SCREEN, bgd
+    DINO
 
 
 def generate_barriers(start_x, stop_x, chance, y):
