@@ -57,6 +57,7 @@ def generate_level():
         if level == LEVEL_COUNT - 1:
             while True:
                 dino = Dino((randint(0, WIDTH), LEVEL_HEIGHT * (LEVEL_COUNT - 1) - 80), DINO)
+                dino.set_on_pole()
                 if dino.cross(POLES) and not dino.cross(BARRIERS):
                     break
                 else:

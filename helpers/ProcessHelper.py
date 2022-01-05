@@ -11,7 +11,7 @@ from classes.FunctionalButton import FunctionalButton
 from classes.Pole import Pole
 from classes.TextButton import TextButton
 from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, ENEMIES, POLES, TREES, BARRIERS, \
-    HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, SETTINGS_SPRITES, GENERATE_CHANCE
+    HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, SETTINGS_SPRITES, GENERATE_CHANCE, BLACK
 from helpers.GenerationHelper import generate_level
 from widgets import settings
 
@@ -140,6 +140,7 @@ def update_screen():
 def game_window():
     generate_level()
     is_dino_dead = False
+    current_color = pygame.color.Color(0, 0, 0, 255)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

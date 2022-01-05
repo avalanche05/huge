@@ -32,6 +32,13 @@ class Dino(pygame.sprite.Sprite):
         self.image = pygame.transform.flip(self.states[self.situations['dead'][0]], self.flip, False)
         self.vertical_speed = 0
 
+    def set_on_pole(self):
+        is_up = self.cross(POLES)
+        while self.cross(POLES):
+            self.rect.y -= 1
+        if is_up:
+            self.rect.y += 1
+
     def start_update(self, up, down, left, right):
         situation = 'run'
 
@@ -108,11 +115,7 @@ class Dino(pygame.sprite.Sprite):
                 if self.cross(POLES):
                     self.vertical_speed = 0
                     break
-        is_up = self.cross(POLES)
-        while self.cross(POLES):
-            self.rect.y -= 1
-        if is_up:
-            self.rect.y += 1
+        self.set_on_pole()
         if not self.cross(POLES):
             self.vertical_speed += self.gravity
         if self.rect.y + self.rect.height > HEIGHT:
