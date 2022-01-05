@@ -29,6 +29,7 @@ class Enemy(pygame.sprite.Sprite):
         self.cur_state += 1
         self.cur_state %= FPS // ENEMY_SPEED * 2
         self.image = self.states[self.cur_state // (FPS // ENEMY_SPEED)]
+        self.mask = pygame.mask.from_surface(self.image)
         if self.rect.x < -100:
             self.kill()
 

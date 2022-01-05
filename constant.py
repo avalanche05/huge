@@ -1,8 +1,11 @@
 import pygame
 from pygame.sprite import Group
 
+import CustomGroup
+
 SIZE = WIDTH, HEIGHT = 1920, 1080
 SCREEN = pygame.display.set_mode(SIZE)
+bgd = pygame.display.set_mode(SIZE)
 GAME_TITLE = 'the huge.'
 ENEMY_SPEED = 5
 DINO_SPEED = 10
@@ -21,7 +24,7 @@ SETTINGS_SPRITES: Group = pygame.sprite.Group()
 POLES = pygame.sprite.Group()
 TREES = pygame.sprite.Group()
 ENEMIES = pygame.sprite.Group()
-DINO = pygame.sprite.Group()
+DINO = CustomGroup.CustomGroup()
 BARRIERS = pygame.sprite.Group()
 WHITE = pygame.Color(255, 255, 255)
 BLACK = pygame.Color(0, 0, 0)

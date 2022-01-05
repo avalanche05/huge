@@ -3,6 +3,7 @@ import sys
 import pygame
 
 from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, ENEMIES, POLES, TREES, BARRIERS
+from helpers.GenerationHelper import generate_level
 from widgets import settings
 
 
@@ -33,14 +34,21 @@ def update_screen():
 
 
 def game_window():
+    is_dino_dead = False
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-        DINO.update()
+
+            if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
+                generate_level()
+                is_dino_dead = False
+        if is_dino_dead:
+            continue
+        is_dino_dead = DINO.update()
         ENEMIES.update()
-        update_screen()
         draw_screen()
+        update_screen()
 
 
 def draw_screen():

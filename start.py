@@ -56,7 +56,7 @@ def update_platform():
 def generate_enemies():
     # генерация врага происходит случайно
     if not randint(0, int(1 // ENEMY_CHANCE)) and is_generate_correct():
-        Enemy((WIDTH, HEIGHT - 580), -(PLATFORM_SPEED + 240) // FPS, ENEMIES, is_start=True)
+        Enemy((WIDTH, HEIGHT - 600), -(PLATFORM_SPEED + 240) // FPS, ENEMIES, is_start=True)
 
 
 def generate_barriers():

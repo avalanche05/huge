@@ -1,8 +1,7 @@
 import pygame
 
-from constant import WHITE, PLACE_IN_IMAGE, POLES, DINO_SPEED, FPS, WIDTH
+from constant import WHITE, PLACE_IN_IMAGE, POLES, DINO_SPEED, FPS, WIDTH, ENEMIES, BARRIERS
 from helpers.DataHelper import load_image, cut_sheet
-from helpers.ProcessHelper import draw_screen
 
 
 class Dino(pygame.sprite.Sprite):
@@ -25,8 +24,13 @@ class Dino(pygame.sprite.Sprite):
         self.is_start = is_start
         self.rect.x = pos[0]
         self.rect.y = pos[1]
+        self.is_dead = False
 
         self.start_y = pos[1]
+
+    def set_dead(self):
+        self.image = pygame.transform.flip(self.states[self.situations['dead'][0]], self.flip, False)
+        self.vertical_speed = 0
 
     def start_update(self, up, down, left, right):
         situation = 'run'
@@ -39,36 +43,36 @@ class Dino(pygame.sprite.Sprite):
             if self.cross(POLES):
                 self.vertical_speed = self.jump_step
         self.image = self.states[self.situations[situation][self.cur_state // (FPS // DINO_SPEED)]]
+        self.mask = pygame.mask.from_surface(self.image)
 
         if self.vertical_speed < 0:
-            for _ in range(abs(self.vertical_speed)):
-                self.rect.y -= 1
+            self.rect.y += self.vertical_speed
         else:
-            for _ in range(abs(self.vertical_speed)):
-                self.rect.y += 1
-                if self.rect.y >= self.start_y:
-                    self.rect.y = self.start_y
-                    break
+            self.rect.y = min(self.rect.y + self.vertical_speed, self.start_y)
         if not self.cross(POLES):
             self.vertical_speed += self.gravity
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
+        if self.cross(ENEMIES) or self.cross(BARRIERS):
+            self.set_dead()
+            return True
+        return False
 
     def level_update(self, up, down, left, right):
         situation = 'stay'
         if left:
             situation = 'run'
-            flag = self.cross(POLES)
             self.rect.x -= self.step
-            if self.cross(POLES) and not flag:
-                self.rect.x += self.step
+            if self.cross(ENEMIES) or self.cross(BARRIERS):
+                self.set_dead()
+                return True
             self.flip = True
         if right:
             situation = 'run'
-            flag = self.cross(POLES)
             self.rect.x += self.step
-            if self.cross(POLES) and not flag:
-                self.rect.x -= self.step
+            if self.cross(ENEMIES) or self.cross(BARRIERS):
+                self.set_dead()
+                return True
             self.flip = False
         if up:
             if self.cross(POLES):
@@ -83,28 +87,38 @@ class Dino(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         if self.vertical_speed < 0:
             for _ in range(abs(self.vertical_speed)):
+
+                if self.cross(ENEMIES) or self.cross(BARRIERS):
+                    self.set_dead()
+                    return True
+
                 self.rect.y -= 1
                 if self.cross(POLES):
                     self.vertical_speed = 0
                     self.rect.y += 1
                     break
         else:
-            for _ in range(abs(self.vertical_speed)):
+            for _ in range(self.vertical_speed):
+
+                if self.cross(ENEMIES) or self.cross(BARRIERS):
+                    self.set_dead()
+                    return True
+
                 self.rect.y += 1
                 if self.cross(POLES):
                     self.vertical_speed = 0
                     break
-        is_up = False
+        is_up = self.cross(POLES)
         while self.cross(POLES):
-            is_up = True
             self.rect.y -= 1
         if is_up:
             self.rect.y += 1
         if not self.cross(POLES):
             self.vertical_speed += self.gravity
-        self.rect.x %= WIDTH
+        self.rect.x = sorted([0, self.rect.x, WIDTH - self.rect.width])[1]
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
+        return False
 
     def update(self, up=False, down=False, left=False, right=False):
         keys = pygame.key.get_pressed()
@@ -113,9 +127,9 @@ class Dino(pygame.sprite.Sprite):
         left |= keys[pygame.K_LEFT]
         right |= keys[pygame.K_RIGHT]
         if self.is_start:
-            self.start_update(up, down, left, right)
+            return self.start_update(up, down, left, right)
         else:
-            self.level_update(up, down, left, right)
+            return self.level_update(up, down, left, right)
 
     def cross(self, group):
         """метод проверяет пересечение спрайта Dino с любым из спрайтов группы group"""

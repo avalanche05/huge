@@ -5,8 +5,9 @@ from classes.Dino import Dino
 from classes.Enemy import Enemy
 from classes.Pole import Pole
 from constant import LEVEL_COUNT, MIN_SPACE_LENGTH, MAX_SPACE_LENGTH, MAX_POLE_LENGTH, \
-    MIN_POLE_LENGTH, WIDTH, MAX_GAP, LEVEL_HEIGHT, POLES, PLACE_IN_IMAGE, BARRIERS, ENEMIES, POLES_GAP, \
-    DINO
+    MIN_POLE_LENGTH, WIDTH, MAX_GAP, LEVEL_HEIGHT, POLES, BARRIERS, ENEMIES, \
+    POLES_GAP, \
+    DINO, BACKGROUND, SCREEN, bgd
 
 
 def generate_barriers(start_x, stop_x, chance, y):
@@ -24,7 +25,17 @@ def generate_enemy(level):
               randint(2, 10), ENEMIES)
 
 
+def clear_groups():
+    pass
+    # DINO.clear(SCREEN)
+    # BARRIERS.clear(SCREEN)
+    # ENEMIES.clear(SCREEN)
+    # POLES.clear(SCREEN)
+
+
 def generate_level():
+    clear_groups()
+
     for level in range(1, LEVEL_COUNT):
         if level != LEVEL_COUNT - 1:
             generate_enemy(level)
