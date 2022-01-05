@@ -118,22 +118,9 @@ class Dino(pygame.sprite.Sprite):
             self.level_update(up, down, left, right)
 
     def cross(self, group):
+        """метод проверяет пересечение спрайта Dino с любым из спрайтов группы group"""
+
         for sprite in group:
             if pygame.sprite.collide_mask(self, sprite):
-                x1, y1, w1, h1 = self.rect
-                x2, y2, w2, h2 = sprite.rect
-                if x1 + 36 < x2 and y1 < y2 - 60:
-                    for i in range(self.rect.x, x2 - w1 + 1, -1):
-                        self.rect.x -= 1
-
-                        draw_screen()
-                        pygame.display.flip()
-                    return False
-                if x1 + w1 - 36 > x2 + w2 and y1 < y2 - 60:
-                    for i in range(self.rect.x, x2 + w2 + 1):
-                        self.rect.x += 1
-                        draw_screen()
-                        pygame.display.flip()
-                    return False
                 return True
         return False

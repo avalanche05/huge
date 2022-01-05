@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, BIRDS, POLES, TREES, BARRIERS
+from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, ENEMIES, POLES, TREES, BARRIERS
 from widgets import settings
 
 
@@ -38,7 +38,7 @@ def game_window():
             if event.type == pygame.QUIT:
                 terminate()
         DINO.update()
-        BIRDS.update()
+        ENEMIES.update()
         update_screen()
         draw_screen()
 
@@ -49,4 +49,4 @@ def draw_screen():
     POLES.draw(SCREEN)
     TREES.draw(SCREEN)
     DINO.draw(SCREEN)
-    BIRDS.draw(SCREEN)
+    ENEMIES.draw(SCREEN)
