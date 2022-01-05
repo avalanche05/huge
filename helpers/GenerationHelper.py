@@ -26,11 +26,9 @@ def generate_enemy(level):
 
 
 def clear_groups():
-    pass
-    # DINO.clear(SCREEN)
-    # BARRIERS.clear(SCREEN)
-    # ENEMIES.clear(SCREEN)
-    # POLES.clear(SCREEN)
+    for group in (DINO, BARRIERS, ENEMIES, POLES):
+        for sprite in group:
+            sprite.kill()
 
 
 def generate_level():

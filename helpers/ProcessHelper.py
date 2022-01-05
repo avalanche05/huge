@@ -24,8 +24,7 @@ def started_window():
         SCREEN.fill(BACKGROUND)
         SETTINGS.draw(SCREEN)
         settings.position().draw(SCREEN)
-        CLOCK.tick(FPS)
-        pygame.display.flip()
+        update_screen()
 
 
 def update_screen():

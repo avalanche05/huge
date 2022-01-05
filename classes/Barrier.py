@@ -32,10 +32,11 @@ class Barrier(pygame.sprite.Sprite):
                 self.rect.y += 1
                 continue
             break
-        # сдвиг барьера
-        self.rect.y += randint(0, 15)
 
     def update(self, *args):
         self.rect.x -= int(args[0])
         if self.rect.x <= -self.rect.width:
             self.kill()
+
+    def move(self, y):
+        self.rect.y += y

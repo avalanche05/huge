@@ -1,6 +1,6 @@
 import pygame
 
-from constant import WHITE, PLACE_IN_IMAGE, POLES, DINO_SPEED, FPS, WIDTH, ENEMIES, BARRIERS
+from constant import WHITE, PLACE_IN_IMAGE, POLES, DINO_SPEED, FPS, WIDTH, ENEMIES, BARRIERS, HEIGHT
 from helpers.DataHelper import load_image, cut_sheet
 
 
@@ -115,6 +115,9 @@ class Dino(pygame.sprite.Sprite):
             self.rect.y += 1
         if not self.cross(POLES):
             self.vertical_speed += self.gravity
+        if self.rect.y + self.rect.height > HEIGHT:
+            self.set_dead()
+            return True
         self.rect.x = sorted([0, self.rect.x, WIDTH - self.rect.width])[1]
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
@@ -130,6 +133,9 @@ class Dino(pygame.sprite.Sprite):
             return self.start_update(up, down, left, right)
         else:
             return self.level_update(up, down, left, right)
+
+    def fly_height(self):
+        return self.start_y - self.rect.y
 
     def cross(self, group):
         """метод проверяет пересечение спрайта Dino с любым из спрайтов группы group"""
