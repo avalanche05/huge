@@ -5,13 +5,16 @@ import pygame
 
 from classes.Barrier import Barrier
 from classes.ChooseButton import ChooseButton
+from classes.Cloud import Cloud
 from classes.Dino import Dino
 from classes.Enemy import Enemy
 from classes.FunctionalButton import FunctionalButton
 from classes.Pole import Pole
+from classes.Portal import Portal
 from classes.TextButton import TextButton
 from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, ENEMIES, POLES, TREES, BARRIERS, \
-    HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, SETTINGS_SPRITES, GENERATE_CHANCE, BLACK
+    HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, SETTINGS_SPRITES, GENERATE_CHANCE, BLACK, \
+    PORTAL, CLOUDS, CLOUD_CHANCE
 from helpers.GenerationHelper import generate_level
 from widgets import settings
 
@@ -70,6 +73,12 @@ def started_window():
             barrier = Barrier((WIDTH, HEIGHT - 580), BARRIERS)
             barrier.move(randint(0, 15))
 
+    def generate_clouds():
+        # генерация барьера происходит случайно
+        if not randrange(0, int(1 // CLOUD_CHANCE)):
+            cloud = Cloud((WIDTH, HEIGHT - 700), -platform_speed // FPS, CLOUDS)
+            cloud.move(randint(0, 80))
+
     # инициализация спрайтов
     username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES,
                                  start_text='user')
@@ -84,18 +93,18 @@ def started_window():
     barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree][:2]
     current_x = 0
     platform_speed = 600
-    is_step = False
+    is_player_game = False
     is_dino_dead = False
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            if not is_step and event.type == pygame.KEYDOWN and event.key in (
+            if not is_player_game and event.type == pygame.KEYDOWN and event.key in (
                     pygame.K_UP, pygame.K_DOWN):
                 difficult_degree = difficult_button.get_text()
                 barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree][:2]
-                is_step = True
-            if not is_step:
+                is_player_game = True
+            if not is_player_game:
                 settings.position().update(event)
                 SETTINGS.update(event)
             if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
@@ -105,19 +114,21 @@ def started_window():
         # генерация объектов
         generate_barriers()
         generate_enemies()
+        generate_clouds()
 
         # обновление координат всех объектов
         update_platform()
+        CLOUDS.update()
         BARRIERS.update(platform_speed // FPS)
 
-        if is_step:
+        if is_player_game:
             is_dino_dead = DINO.update(False, False, False, False)
             platform_speed += SPEED_BOOST
         else:
             is_up = is_barrier_near(100) and is_enemy_near(200) or is_barrier_near(
                 20) or is_barrier_near(150) and is_enemy_near(150)
             is_down = is_enemy_near(30) and dino.fly_height() < 100 and not is_barrier_near(50)
-            DINO.update(is_up, is_down, False, False)
+            DINO.update(is_up, is_down, False, False, True)
 
         ENEMIES.update()
 
@@ -126,7 +137,7 @@ def started_window():
         current_x %= PLATFORM_SPRITE_LENGTH
 
         draw_screen()
-        if not is_step:
+        if not is_player_game:
             SETTINGS.draw(SCREEN)
             settings.position().draw(SCREEN)
         update_screen()
@@ -152,13 +163,18 @@ def game_window(difficult_degree):
         if is_dino_dead:
             continue
         is_dino_dead = DINO.update()
+        CLOUDS.update()
         ENEMIES.update()
+        PORTAL.update()
+        CLOUDS.update()
         draw_screen()
         update_screen()
 
 
 def draw_screen():
     SCREEN.fill(BACKGROUND)
+    PORTAL.draw(SCREEN)
+    CLOUDS.draw(SCREEN)
     BARRIERS.draw(SCREEN)
     POLES.draw(SCREEN)
     TREES.draw(SCREEN)

@@ -126,8 +126,8 @@ class Dino(pygame.sprite.Sprite):
         self.cur_state %= FPS // DINO_SPEED * 2
         return False
 
-    def update(self, up=False, down=False, left=False, right=False):
-        if self.cross(ENEMIES) or self.cross(BARRIERS):
+    def update(self, up=False, down=False, left=False, right=False, is_ai_play=False):
+        if (self.cross(ENEMIES) or self.cross(BARRIERS)) and not is_ai_play:
             self.set_dead()
             return True
         keys = pygame.key.get_pressed()
