@@ -40,3 +40,6 @@ class Barrier(pygame.sprite.Sprite):
 
     def move(self, y):
         self.rect.y += y
+
+    def get_width(self):
+        return self.rect.width

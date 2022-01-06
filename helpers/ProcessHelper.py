@@ -1,5 +1,5 @@
 import sys
-from random import randint
+from random import randint, randrange
 
 import pygame
 
@@ -61,12 +61,12 @@ def started_window():
 
     def generate_enemies():
         # генерация врага происходит случайно
-        if not randint(0, int(1 // enemy_chance)) and is_generate_correct():
+        if not randrange(0, 1 // enemy_chance) and is_generate_correct():
             Enemy((WIDTH, HEIGHT - 600), -(platform_speed + 240) // FPS, ENEMIES, is_start=True)
 
     def generate_barriers():
         # генерация барьера происходит случайно
-        if not randint(0, int(1 // barrier_chance)) and is_generate_correct():
+        if not randrange(0, 1 // barrier_chance) and is_generate_correct():
             barrier = Barrier((WIDTH, HEIGHT - 580), BARRIERS)
             barrier.move(randint(0, 15))
 
@@ -80,8 +80,8 @@ def started_window():
     platform_1 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, POLES, start_pos=0)
     platform_2 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, POLES, start_pos=0)
     # инициализация переменных
-    barrier_chance = 1 / 100
-    enemy_chance = 1 / 300
+    difficult_degree = difficult_button.get_text()
+    barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree][:2]
     current_x = 0
     platform_speed = 600
     is_step = False
@@ -93,13 +93,13 @@ def started_window():
             if not is_step and event.type == pygame.KEYDOWN and event.key in (
                     pygame.K_UP, pygame.K_DOWN):
                 difficult_degree = difficult_button.get_text()
-                barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree]
+                barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree][:2]
                 is_step = True
             if not is_step:
                 settings.position().update(event)
                 SETTINGS.update(event)
             if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
-                game_window()
+                game_window(difficult_degree)
         if is_dino_dead:
             continue
         # генерация объектов
@@ -137,17 +137,17 @@ def update_screen():
     pygame.display.flip()
 
 
-def game_window():
-    generate_level()
+def game_window(difficult_degree):
+    barrier_chance, max_enemy_count = GENERATE_CHANCE[difficult_degree][2:]
+    generate_level(barrier_chance, max_enemy_count)
     is_dino_dead = False
-    current_color = pygame.color.Color(0, 0, 0, 255)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
 
             if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
-                generate_level()
+                generate_level(barrier_chance, max_enemy_count)
                 is_dino_dead = False
         if is_dino_dead:
             continue

@@ -33,15 +33,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def level_update(self):
         self.rect.x += self.direction
-        if sprite := self.cross(ENEMIES):
-            if (sprite.direction > 0) != (self.direction > 0):
-                self.rect.x -= self.direction
-                sprite.rect.x -= sprite.direction
-                sprite.direction *= -1
-                sprite.flip = not sprite.flip
-                self.direction *= -1
-                self.flip = not self.flip
-        elif self.rect.x < 0 or self.rect.x > WIDTH - self.rect.width:
+        if self.rect.x < 0 or self.rect.x > WIDTH - self.rect.width:
             self.rect.x = sorted([0, self.rect.x, WIDTH - self.rect.w])[1]
             self.direction *= -1
             self.flip = not self.flip
@@ -56,12 +48,3 @@ class Enemy(pygame.sprite.Sprite):
             self.start_update()
         else:
             self.level_update()
-
-    def cross(self, group):
-        """метод проверяет пересечение спрайта Enemy с любым из спрайтов группы group"""
-
-        for sprite in group:
-            if pygame.sprite.collide_mask(self, sprite) and (self.rect, self.direction) != (
-                    sprite.rect, self.direction):
-                return sprite
-        return False

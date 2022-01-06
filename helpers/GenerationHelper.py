@@ -1,26 +1,24 @@
-from random import randint
+from random import randint, randrange
 
 from classes.Barrier import Barrier
 from classes.Dino import Dino
 from classes.Enemy import Enemy
 from classes.Pole import Pole
 from constant import LEVEL_COUNT, MIN_SPACE_LENGTH, MAX_SPACE_LENGTH, MAX_POLE_LENGTH, \
-    MIN_POLE_LENGTH, WIDTH, MAX_GAP, LEVEL_HEIGHT, POLES, BARRIERS, ENEMIES, \
-    POLES_GAP, \
-    DINO
+    MIN_POLE_LENGTH, WIDTH, MAX_GAP, LEVEL_HEIGHT, POLES, BARRIERS, ENEMIES, DINO
 
 
 def generate_barriers(start_x, stop_x, chance, y):
-    current_x = start_x + POLES_GAP
-    while current_x < stop_x - POLES_GAP:
-        if not randint(0, 1 // chance):
-            current_x += Barrier((current_x, y), BARRIERS).rect.width
+    current_x = start_x
+    while current_x < stop_x:
+        if not randrange(0, 1 // chance):
+            current_x += Barrier((current_x, y), BARRIERS).get_width()
         else:
             current_x += randint(40, 70)
 
 
-def generate_enemy(level):
-    for _ in range(randint(0, 3)):
+def generate_enemy(level, max_enemy_count):
+    for _ in range(randint(0, max_enemy_count)):
         Enemy((randint(0, WIDTH - 80), level * LEVEL_HEIGHT - LEVEL_HEIGHT + randint(10, 40)),
               randint(2, 10), ENEMIES)
 
@@ -31,12 +29,12 @@ def clear_groups():
             sprite.kill()
 
 
-def generate_level():
+def generate_level(barrier_chance, max_enemy_count):
     clear_groups()
 
     for level in range(1, LEVEL_COUNT):
         if level != LEVEL_COUNT - 1:
-            generate_enemy(level)
+            generate_enemy(level, max_enemy_count)
         current_x = 0
         is_pole = bool(randint(0, 1))
         d = {False: (MIN_SPACE_LENGTH, MAX_SPACE_LENGTH),
@@ -47,13 +45,15 @@ def generate_level():
             if is_pole:
                 y = level * LEVEL_HEIGHT - MAX_GAP + gap
                 Pole((current_x, y), length, POLES)
-                generate_barriers(current_x, current_x + length - 40, 1 / 4, y - 123)
+                generate_barriers(current_x, current_x + length - 40, barrier_chance, y - 123)
             current_x += length
             is_pole = not is_pole
         else:
             gap = randint(-MAX_GAP, MAX_GAP)
             if is_pole:
-                Pole((current_x, level * LEVEL_HEIGHT - MAX_GAP + gap), WIDTH - current_x, POLES)
+                y = level * LEVEL_HEIGHT - MAX_GAP + gap
+                Pole((current_x, y), WIDTH - current_x, POLES)
+                generate_barriers(current_x, WIDTH - 40, barrier_chance, y - 123)
         if level == LEVEL_COUNT - 1:
             while True:
                 dino = Dino((randint(0, WIDTH), LEVEL_HEIGHT * (LEVEL_COUNT - 1) - 80), DINO)
