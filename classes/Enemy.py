@@ -1,6 +1,6 @@
 import pygame
 
-from constant import PLACE_IN_IMAGE, WHITE, WIDTH, FPS, ENEMY_SPEED, ENEMIES
+from constant import PLACE_IN_IMAGE, WHITE, WIDTH, FPS, ENEMY_SPEED
 from helpers.DataHelper import load_image, cut_sheet
 
 
@@ -15,7 +15,7 @@ class Enemy(pygame.sprite.Sprite):
         self.flip = direction > 0
         self.image = pygame.transform.flip(self.states[self.cur_state], self.flip, False)
         self.mask = pygame.mask.from_surface(self.image)
-        self.rect = pygame.Rect(0, 0, self.image.get_width(), 1)
+        self.rect = self.image.get_rect()
         self.direction = direction
         self.rect.x = pos[0]
         self.rect.y = pos[1]

@@ -10,13 +10,12 @@ from classes.Dino import Dino
 from classes.Enemy import Enemy
 from classes.FunctionalButton import FunctionalButton
 from classes.Pole import Pole
-from classes.Portal import Portal
+from classes.Settings import Settings
 from classes.TextButton import TextButton
 from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, ENEMIES, POLES, TREES, BARRIERS, \
-    HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, SETTINGS_SPRITES, GENERATE_CHANCE, BLACK, \
-    PORTAL, CLOUDS, CLOUD_CHANCE
+    HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, SETTINGS_SPRITES, GENERATE_CHANCE, PORTAL, \
+    CLOUDS, CLOUD_CHANCE
 from helpers.GenerationHelper import generate_level
-from widgets import settings
 
 
 def terminate():
@@ -80,6 +79,7 @@ def started_window():
             cloud.move(randint(0, 80))
 
     # инициализация спрайтов
+    settings = Settings((WIDTH - 64, 0), SETTINGS)
     username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES,
                                  start_text='user')
     difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES,

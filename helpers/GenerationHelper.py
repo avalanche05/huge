@@ -45,9 +45,6 @@ def generate_level(barrier_chance, max_enemy_count):
     # перебираем все уровни
     # уровнем считается определённая высота
     for level in range(1, LEVEL_COUNT):
-        # не генерируем врагов на высоте, в которой появляется игрок
-        if level != LEVEL_COUNT - 1:
-            generate_enemy(level, max_enemy_count)
         current_x = 0
         # случайно выбираем с чего начать: платформы или пустоты
         is_pole = bool(randint(0, 1))
@@ -102,7 +99,7 @@ def generate_level(barrier_chance, max_enemy_count):
             generate_enemy(level, max_enemy_count)
 
         # генерируем облака на каждом уровне
-        generate_clouds(level, randint(1, 5))
+        generate_clouds(level, 5)
 
         # на данном уровне должен генерироваться портал
         if level == 1:

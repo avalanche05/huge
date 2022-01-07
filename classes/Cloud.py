@@ -1,6 +1,6 @@
 import pygame
 
-from constant import PLACE_IN_IMAGE, WHITE, WIDTH, FPS, ENEMY_SPEED, ENEMIES
+from constant import PLACE_IN_IMAGE, WHITE
 from helpers.DataHelper import load_image, cut_sheet
 
 

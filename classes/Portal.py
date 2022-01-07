@@ -1,8 +1,6 @@
-from random import randint
-
 import pygame
 
-from constant import PLACE_IN_IMAGE, WHITE, POLES
+from constant import PLACE_IN_IMAGE, POLES
 from helpers.DataHelper import load_image, cut_sheet
 
 
