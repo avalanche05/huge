@@ -1,7 +1,7 @@
 import pygame
 
-# SIZE = WIDTH, HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
-SIZE = WIDTH, HEIGHT = 1920, 1080
+pygame.init()
+SIZE = WIDTH, HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
 GAME_TITLE = 'the huge.'
 ENEMY_SPEED = 5
 DINO_SPEED = 10
@@ -23,6 +23,7 @@ WHITE = pygame.Color(255, 255, 255)
 BLACK = pygame.Color(0, 0, 0)
 BACKGROUND = pygame.Color(247, 247, 247)
 TEXT_COLOR = pygame.Color(83, 83, 83)
+SETTINGS_TEXT_COLOR = BLACK
 LEVEL_COUNT = 6
 LEVEL_HEIGHT = 180
 MAX_POLE_LENGTH = 360
@@ -32,3 +33,4 @@ MIN_SPACE_LENGTH = 140
 SPEED_BOOST = 0.1
 MAX_GAP = 10
 PLATFORM_SPRITE_LENGTH = 2400
+STARTED_TEXT = 'PRESS ARROW KEY TO START'

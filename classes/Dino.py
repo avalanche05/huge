@@ -40,7 +40,7 @@ class Dino(pygame.sprite.Sprite):
         if is_up:
             self.rect.y += 1
 
-    def start_update(self, up, down, left, right):
+    def start_update(self, up, down, left, right, is_ai_play):
         situation = 'run'
 
         if down:
@@ -61,7 +61,7 @@ class Dino(pygame.sprite.Sprite):
             self.vertical_speed += self.gravity
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
-        if self.cross(enemies) or self.cross(barriers):
+        if (self.cross(enemies) or self.cross(barriers)) and not is_ai_play:
             self.set_dead()
             return True
         return False
@@ -137,7 +137,7 @@ class Dino(pygame.sprite.Sprite):
         left |= keys[pygame.K_LEFT]
         right |= keys[pygame.K_RIGHT]
         if self.is_start:
-            return self.start_update(up, down, left, right)
+            return self.start_update(up, down, left, right, is_ai_play)
         else:
             return self.level_update(up, down, left, right)
 

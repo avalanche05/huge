@@ -14,7 +14,7 @@ from classes.Pole import Pole
 from classes.Settings import Settings
 from classes.TextButton import TextButton
 from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, \
-    GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR
+    GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
     portal, trees, clock, transformation_surface
 from helpers.GenerationHelper import generate_level
@@ -97,9 +97,9 @@ def started_window():
     current_x = 0
     platform_speed = 600
     alpha = 0
-    addend = 2
-    font = pygame.font.Font(os.path.abspath('data/font.ttf'), 40)
-    text = font.render('Press arrow to play', True, TEXT_COLOR)
+    addend = 8
+    font = pygame.font.Font(os.path.abspath('data/font.ttf'), 32)
+    text = font.render(STARTED_TEXT, True, TEXT_COLOR)
     is_player_game = False
     is_dino_dead = False
     while True:
@@ -114,7 +114,7 @@ def started_window():
             if not is_player_game:
                 settings_sprite.position().update(event)
                 settings.update(event)
-            if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
+            if is_dino_dead and event.type == pygame.KEYDOWN:
                 game_window(difficult_degree)
         if is_dino_dead:
             continue
@@ -156,6 +156,14 @@ def started_window():
         update_screen()
 
 
+def set_black():
+    for i in range(0, 256, 15):
+        color = (0, 0, 0, i)
+        transformation_surface.fill(color)
+        screen.blit(transformation_surface, (0, 0))
+        update_screen()
+
+
 def update_screen():
     clock.tick(FPS)
     pygame.display.flip()
@@ -166,12 +174,14 @@ def game_window(difficult_degree):
     generate_level(barrier_chance, max_enemy_count)
     is_dino_dead = False
     color = [0, 0, 0, 255]
+    set_black()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
 
             if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
+                set_black()
                 generate_level(barrier_chance, max_enemy_count)
                 is_dino_dead = False
                 color[-1] = 255
@@ -185,7 +195,7 @@ def game_window(difficult_degree):
         draw_screen()
         transformation_surface.fill(color)
         screen.blit(transformation_surface, (0, 0))
-        color[-1] = max(color[-1] - 2, 0)
+        color[-1] = max(color[-1] - 5, 0)
         update_screen()
 
 

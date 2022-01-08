@@ -1,7 +1,7 @@
 import pygame
 
 from classes.Button import Button
-from constant import TEXT_COLOR
+from constant import SETTINGS_TEXT_COLOR
 
 
 class TextButton(Button):
@@ -11,7 +11,7 @@ class TextButton(Button):
         super().__init__(text, pos, *groups)
         self.added_text = start_text
         self.activated = False
-        self.update_text(self.text + ': ' + self.added_text, TEXT_COLOR)
+        self.update_text(self.text + ': ' + self.added_text, SETTINGS_TEXT_COLOR)
 
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
@@ -28,4 +28,4 @@ class TextButton(Button):
             else:
                 self.added_text += args[0].unicode if args[0].unicode.isalnum() or args[
                     0].unicode == ' ' else ''
-        self.update_text(self.text + ': ' + self.added_text, TEXT_COLOR)
+        self.update_text(self.text + ': ' + self.added_text, SETTINGS_TEXT_COLOR)
