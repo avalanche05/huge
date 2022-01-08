@@ -1,6 +1,7 @@
 import pygame
 
-from constant import WHITE, PLACE_IN_IMAGE, POLES, DINO_SPEED, FPS, WIDTH, ENEMIES, BARRIERS, HEIGHT
+from constant import WHITE, PLACE_IN_IMAGE, DINO_SPEED, FPS, WIDTH, HEIGHT
+from globals import poles, enemies, barriers
 from helpers.DataHelper import load_image, cut_sheet
 
 
@@ -33,8 +34,8 @@ class Dino(pygame.sprite.Sprite):
         self.vertical_speed = 0
 
     def set_on_pole(self):
-        is_up = self.cross(POLES)
-        while self.cross(POLES):
+        is_up = self.cross(poles)
+        while self.cross(poles):
             self.rect.y -= 1
         if is_up:
             self.rect.y += 1
@@ -44,10 +45,10 @@ class Dino(pygame.sprite.Sprite):
 
         if down:
             situation = 'sit'
-            if not self.cross(POLES):
+            if not self.cross(poles):
                 self.vertical_speed += 5
         if up:
-            if self.cross(POLES):
+            if self.cross(poles):
                 self.vertical_speed = self.jump_step
         self.image = self.states[self.situations[situation][self.cur_state // (FPS // DINO_SPEED)]]
         self.mask = pygame.mask.from_surface(self.image)
@@ -56,11 +57,11 @@ class Dino(pygame.sprite.Sprite):
             self.rect.y += self.vertical_speed
         else:
             self.rect.y = min(self.rect.y + self.vertical_speed, self.start_y)
-        if not self.cross(POLES):
+        if not self.cross(poles):
             self.vertical_speed += self.gravity
         self.cur_state += 1
         self.cur_state %= FPS // DINO_SPEED * 2
-        if self.cross(ENEMIES) or self.cross(BARRIERS):
+        if self.cross(enemies) or self.cross(barriers):
             self.set_dead()
             return True
         return False
@@ -70,23 +71,23 @@ class Dino(pygame.sprite.Sprite):
         if left:
             situation = 'run'
             self.rect.x -= self.step
-            if self.cross(ENEMIES) or self.cross(BARRIERS):
+            if self.cross(enemies) or self.cross(barriers):
                 self.set_dead()
                 return True
             self.flip = True
         if right:
             situation = 'run'
             self.rect.x += self.step
-            if self.cross(ENEMIES) or self.cross(BARRIERS):
+            if self.cross(enemies) or self.cross(barriers):
                 self.set_dead()
                 return True
             self.flip = False
         if up:
-            if self.cross(POLES):
+            if self.cross(poles):
                 self.vertical_speed = self.jump_step
         if down:
             situation = 'sit'
-            if not self.cross(POLES):
+            if not self.cross(poles):
                 self.vertical_speed += 5
         self.image = pygame.transform.flip(
             self.states[self.situations[situation][self.cur_state // (FPS // DINO_SPEED)]],
@@ -95,28 +96,28 @@ class Dino(pygame.sprite.Sprite):
         if self.vertical_speed < 0:
             for _ in range(abs(self.vertical_speed)):
 
-                if self.cross(ENEMIES) or self.cross(BARRIERS):
+                if self.cross(enemies) or self.cross(barriers):
                     self.set_dead()
                     return True
 
                 self.rect.y -= 1
-                if self.cross(POLES):
+                if self.cross(poles):
                     self.vertical_speed = 0
                     self.rect.y += 1
                     break
         else:
             for _ in range(self.vertical_speed):
 
-                if self.cross(ENEMIES) or self.cross(BARRIERS):
+                if self.cross(enemies) or self.cross(barriers):
                     self.set_dead()
                     return True
 
                 self.rect.y += 1
-                if self.cross(POLES):
+                if self.cross(poles):
                     self.vertical_speed = 0
                     break
         self.set_on_pole()
-        if not self.cross(POLES):
+        if not self.cross(poles):
             self.vertical_speed += self.gravity
         if self.rect.y + self.rect.height > HEIGHT:
             self.set_dead()
@@ -127,7 +128,7 @@ class Dino(pygame.sprite.Sprite):
         return False
 
     def update(self, up=False, down=False, left=False, right=False, is_ai_play=False):
-        if (self.cross(ENEMIES) or self.cross(BARRIERS)) and not is_ai_play:
+        if (self.cross(enemies) or self.cross(barriers)) and not is_ai_play:
             self.set_dead()
             return True
         keys = pygame.key.get_pressed()

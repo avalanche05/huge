@@ -1,6 +1,6 @@
 import pygame
 
-from constant import START_SPRITES, SETTINGS_SPRITES
+from globals import start_sprites, settings_sprites
 from helpers.DataHelper import load_image
 
 
@@ -25,4 +25,4 @@ class Settings(pygame.sprite.Sprite):
                 self.image = Settings.settings
 
     def position(self):
-        return START_SPRITES if self.image == Settings.settings else SETTINGS_SPRITES
+        return start_sprites if self.image == Settings.settings else settings_sprites

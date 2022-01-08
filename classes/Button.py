@@ -1,6 +1,6 @@
 import pygame
 
-from constant import BACKGROUND, BLACK
+from constant import BACKGROUND
 
 
 class Button(pygame.sprite.Sprite):
@@ -16,7 +16,7 @@ class Button(pygame.sprite.Sprite):
         self.current_text = text.split(': ')[1] if ': ' in text else None
         # текст
         font = pygame.font.Font(None, 60)
-        self.render_text = font.render(text, True, BLACK)
+        self.render_text = font.render(text, True, bg)
         # размеры
         self.size = self.render_text.get_size()
         self.size = self.size[0] + 16, self.size[1] + 4

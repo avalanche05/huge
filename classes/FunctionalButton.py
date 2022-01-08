@@ -1,7 +1,7 @@
 import pygame
 
 from classes.Button import Button
-from constant import BLACK
+from constant import TEXT_COLOR
 
 
 class FunctionalButton(Button):
@@ -10,7 +10,7 @@ class FunctionalButton(Button):
     def __init__(self, text: str, pos: tuple, *groups: pygame.sprite.Group, function):
         super().__init__(text, pos, *groups)
         self.function = function
-        self.update_text(self.text, BLACK)
+        self.update_text(self.text, TEXT_COLOR)
 
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and \

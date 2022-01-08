@@ -1,6 +1,7 @@
 import pygame
 
-from constant import PLACE_IN_IMAGE, POLES
+from constant import PLACE_IN_IMAGE
+from globals import poles
 from helpers.DataHelper import load_image, cut_sheet
 
 
@@ -18,8 +19,8 @@ class Portal(pygame.sprite.Sprite):
         self.rect.y = pos[1]
 
     def set_on_pole(self):
-        is_up = self.cross(POLES)
-        while self.cross(POLES):
+        is_up = self.cross(poles)
+        while self.cross(poles):
             self.rect.y -= 1
         if is_up:
             self.rect.y += 1

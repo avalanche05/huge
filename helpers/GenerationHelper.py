@@ -7,14 +7,15 @@ from classes.Enemy import Enemy
 from classes.Pole import Pole
 from classes.Portal import Portal
 from constant import LEVEL_COUNT, MIN_SPACE_LENGTH, MAX_SPACE_LENGTH, MAX_POLE_LENGTH, \
-    MIN_POLE_LENGTH, WIDTH, MAX_GAP, LEVEL_HEIGHT, POLES, BARRIERS, ENEMIES, DINO, CLOUDS, PORTAL
+    MIN_POLE_LENGTH, WIDTH, MAX_GAP, LEVEL_HEIGHT
+from globals import barriers, enemies, poles, clouds, portal, dino
 
 
 def generate_barriers(start_x, stop_x, chance, y):
     current_x = start_x
     while current_x < stop_x:
         if not randrange(0, 1 // chance):
-            current_x += Barrier((current_x, y), BARRIERS).get_width()
+            current_x += Barrier((current_x, y), barriers).get_width()
         else:
             current_x += randint(40, 70)
 
@@ -22,16 +23,16 @@ def generate_barriers(start_x, stop_x, chance, y):
 def generate_enemy(level, max_enemy_count):
     for _ in range(randint(0, max_enemy_count)):
         Enemy((randint(0, WIDTH - 80), level * LEVEL_HEIGHT - LEVEL_HEIGHT + randint(10, 40)),
-              randint(2, 10), ENEMIES)
+              randint(2, 10), enemies)
 
 
 def generate_clouds(level, count):
     for _ in range(randint(0, count)):
-        Cloud((randint(0, WIDTH - 80), (level - 1) * LEVEL_HEIGHT + randint(10, 40)), 0, CLOUDS)
+        Cloud((randint(0, WIDTH - 80), (level - 1) * LEVEL_HEIGHT + randint(10, 40)), 0, clouds)
 
 
 def clear_groups():
-    for group in (DINO, BARRIERS, ENEMIES, POLES, CLOUDS, PORTAL):
+    for group in (dino, barriers, enemies, poles, clouds, portal):
         for sprite in group:
             sprite.kill()
 
@@ -53,7 +54,7 @@ def generate_level(barrier_chance, max_enemy_count):
                         True: (MIN_POLE_LENGTH, MAX_POLE_LENGTH)}
 
         # список будет содержать все платформы на данном уровне
-        poles = []
+        all_poles = []
 
         # в цикле происходит генерация объектов
         while length_range[is_pole][0] <= WIDTH - current_x:
@@ -66,9 +67,9 @@ def generate_level(barrier_chance, max_enemy_count):
             if is_pole:
                 # выбираем высоту платформы
                 y = level * LEVEL_HEIGHT - MAX_GAP + gap
-                pole = Pole((current_x, y), length, POLES)
+                pole = Pole((current_x, y), length, poles)
                 # сохраняем текущую платформу
-                poles.append(pole)
+                all_poles.append(pole)
             current_x += length
             # генерация происходит последовательно
             # после пустого пространства идёт платформа и наоборот
@@ -78,14 +79,14 @@ def generate_level(barrier_chance, max_enemy_count):
         if is_pole:
             gap = randint(-MAX_GAP, MAX_GAP)
             y = level * LEVEL_HEIGHT - MAX_GAP + gap
-            Pole((current_x, y), WIDTH - current_x, POLES)
+            Pole((current_x, y), WIDTH - current_x, poles)
 
         # на данном уровне должен генерироваться игрок
         if level == LEVEL_COUNT - 1:
             # выбираем случайную платформу на текущем уровне
-            pole = choice(poles)
+            pole = choice(all_poles)
             # удаляем платформу из списка, т.к. мы НЕ генерируем препятствия на платформе игрока
-            poles.remove(pole)
+            all_poles.remove(pole)
 
             x_pole = pole.rect.x
             y_pole = pole.rect.y
@@ -93,7 +94,7 @@ def generate_level(barrier_chance, max_enemy_count):
 
             # выбираем случайный x для игрока
             x_dino = randint(x_pole, x_pole + pole_length - 40)
-            Dino((x_dino, y_pole - 100), DINO)
+            Dino((x_dino, y_pole - 100), dino)
         else:
             # мы генрируем врагов на всех уровнях кроме нижнего, т.к. там изначально находится игрок
             generate_enemy(level, max_enemy_count)
@@ -104,9 +105,9 @@ def generate_level(barrier_chance, max_enemy_count):
         # на данном уровне должен генерироваться портал
         if level == 1:
             # выбираем случайную платформу на текущем уровне
-            pole = choice(poles)
+            pole = choice(all_poles)
             # удаляем портал из списка, т.к. мы НЕ генерируем препятствия на платформе портала
-            poles.remove(pole)
+            all_poles.remove(pole)
 
             x_pole = pole.rect.x
             y_pole = pole.rect.y
@@ -114,10 +115,10 @@ def generate_level(barrier_chance, max_enemy_count):
 
             # выбираем случайный x для портала
             x_platform = randint(x_pole, max(x_pole, x_pole + pole_length - 160))
-            Portal((x_platform, y_pole - 145), PORTAL)
+            Portal((x_platform, y_pole - 145), portal)
 
         # расставляем препятствия на платформах
-        for pole in poles:
+        for pole in all_poles:
             x_pole = pole.rect.x
             y_pole = pole.rect.y
             pole_length = pole.rect.width

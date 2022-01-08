@@ -1,3 +1,4 @@
+import os
 import sys
 from random import randint, randrange
 
@@ -12,9 +13,10 @@ from classes.FunctionalButton import FunctionalButton
 from classes.Pole import Pole
 from classes.Settings import Settings
 from classes.TextButton import TextButton
-from constant import SETTINGS, SCREEN, BACKGROUND, FPS, CLOCK, DINO, ENEMIES, POLES, TREES, BARRIERS, \
-    HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, SETTINGS_SPRITES, GENERATE_CHANCE, PORTAL, \
-    CLOUDS, CLOUD_CHANCE
+from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, \
+    GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR
+from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
+    portal, trees, clock, transformation_surface
 from helpers.GenerationHelper import generate_level
 
 
@@ -30,9 +32,9 @@ def started_window():
     def biggest_x():
         ans = -200
 
-        for sprite in BARRIERS:
+        for sprite in barriers:
             ans = max(ans, sprite.rect.x)
-        for sprite in ENEMIES:
+        for sprite in enemies:
             ans = max(ans, sprite.rect.x)
 
         return ans
@@ -42,16 +44,17 @@ def started_window():
 
     def is_barrier_near(count):
         """функция проверяет наличие препятсвия на расстоянии count пикселей от игрока"""
-        for barrier in BARRIERS:
-            if barrier.rect.x - dino.rect.x <= dino.rect.width + count and barrier.rect.x > dino.rect.x:
+        for barrier in barriers:
+            if barrier.rect.x - dino_sprite.rect.x <= dino_sprite.rect.width + count \
+                    and barrier.rect.x > dino_sprite.rect.x:
                 return True
 
         return False
 
     def is_enemy_near(count):
         """функция проверяет наличие врага в радиусе count пикселей от игрока"""
-        for enemy in ENEMIES:
-            if enemy.rect.x - dino.rect.x <= dino.rect.width + count:
+        for enemy in enemies:
+            if enemy.rect.x - dino_sprite.rect.x <= dino_sprite.rect.width + count:
                 return True
 
         return False
@@ -64,35 +67,39 @@ def started_window():
     def generate_enemies():
         # генерация врага происходит случайно
         if not randrange(0, 1 // enemy_chance) and is_generate_correct():
-            Enemy((WIDTH, HEIGHT - 600), -(platform_speed + 240) // FPS, ENEMIES, is_start=True)
+            Enemy((WIDTH, HEIGHT - 600), -(platform_speed + 240) // FPS, enemies, is_start=True)
 
     def generate_barriers():
         # генерация барьера происходит случайно
         if not randrange(0, 1 // barrier_chance) and is_generate_correct():
-            barrier = Barrier((WIDTH, HEIGHT - 580), BARRIERS)
+            barrier = Barrier((WIDTH, HEIGHT - 580), barriers)
             barrier.move(randint(0, 15))
 
     def generate_clouds():
         # генерация барьера происходит случайно
         if not randrange(0, int(1 // CLOUD_CHANCE)):
-            cloud = Cloud((WIDTH, HEIGHT - 700), -platform_speed // FPS, CLOUDS)
+            cloud = Cloud((WIDTH, HEIGHT - 700), -platform_speed // FPS, clouds)
             cloud.move(randint(0, 80))
 
     # инициализация спрайтов
-    settings = Settings((WIDTH - 64, 0), SETTINGS)
-    username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), SETTINGS_SPRITES,
+    settings_sprite = Settings((WIDTH - 64, 0), settings)
+    username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), settings_sprites,
                                  start_text='user')
-    difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), SETTINGS_SPRITES,
+    difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), settings_sprites,
                                     args=['<Easy>', '<Medium>', '<Hard>'])
-    FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), SETTINGS_SPRITES, function=terminate)
-    dino = Dino((100, HEIGHT - 570), DINO, is_start=True)
-    platform_1 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, POLES, start_pos=0)
-    platform_2 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, POLES, start_pos=0)
+    FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), settings_sprites, function=terminate)
+    dino_sprite = Dino((100, HEIGHT - 570), dino, is_start=True)
+    platform_1 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
+    platform_2 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
     # инициализация переменных
     difficult_degree = difficult_button.get_text()
     barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree][:2]
     current_x = 0
     platform_speed = 600
+    alpha = 0
+    addend = 2
+    font = pygame.font.Font(os.path.abspath('data/font.ttf'), 40)
+    text = font.render('Press arrow to play', True, TEXT_COLOR)
     is_player_game = False
     is_dino_dead = False
     while True:
@@ -105,8 +112,8 @@ def started_window():
                 barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree][:2]
                 is_player_game = True
             if not is_player_game:
-                settings.position().update(event)
-                SETTINGS.update(event)
+                settings_sprite.position().update(event)
+                settings.update(event)
             if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
                 game_window(difficult_degree)
         if is_dino_dead:
@@ -118,19 +125,19 @@ def started_window():
 
         # обновление координат всех объектов
         update_platform()
-        CLOUDS.update()
-        BARRIERS.update(platform_speed // FPS)
+        clouds.update()
+        barriers.update(platform_speed // FPS)
 
         if is_player_game:
-            is_dino_dead = DINO.update(False, False, False, False)
+            is_dino_dead = dino.update(False, False, False, False)
             platform_speed += SPEED_BOOST
         else:
             is_up = is_barrier_near(100) and is_enemy_near(200) or is_barrier_near(
                 20) or is_barrier_near(150) and is_enemy_near(150)
-            is_down = is_enemy_near(30) and dino.fly_height() < 100 and not is_barrier_near(50)
-            DINO.update(is_up, is_down, False, False, True)
-
-        ENEMIES.update()
+            is_down = is_enemy_near(30) and dino_sprite.fly_height() < 100 and not is_barrier_near(
+                50)
+            dino.update(is_up, is_down, False, False, True)
+        enemies.update()
 
         # изменение текущего положение всех объектов
         current_x -= platform_speed // FPS
@@ -138,13 +145,19 @@ def started_window():
 
         draw_screen()
         if not is_player_game:
-            SETTINGS.draw(SCREEN)
-            settings.position().draw(SCREEN)
+            settings.draw(screen)
+            settings_sprite.position().draw(screen)
+            text.set_alpha(alpha)
+            alpha += addend
+            addend = addend if 0 <= alpha <= 255 else -addend
+            screen.blit(text,
+                        (WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 + text.get_height() // 2))
+
         update_screen()
 
 
 def update_screen():
-    CLOCK.tick(FPS)
+    clock.tick(FPS)
     pygame.display.flip()
 
 
@@ -152,6 +165,7 @@ def game_window(difficult_degree):
     barrier_chance, max_enemy_count = GENERATE_CHANCE[difficult_degree][2:]
     generate_level(barrier_chance, max_enemy_count)
     is_dino_dead = False
+    color = [0, 0, 0, 255]
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -160,23 +174,27 @@ def game_window(difficult_degree):
             if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
                 generate_level(barrier_chance, max_enemy_count)
                 is_dino_dead = False
+                color[-1] = 255
         if is_dino_dead:
             continue
-        is_dino_dead = DINO.update()
-        CLOUDS.update()
-        ENEMIES.update()
-        PORTAL.update()
-        CLOUDS.update()
+        is_dino_dead = dino.update()
+        clouds.update()
+        enemies.update()
+        portal.update()
+        clouds.update()
         draw_screen()
+        transformation_surface.fill(color)
+        screen.blit(transformation_surface, (0, 0))
+        color[-1] = max(color[-1] - 2, 0)
         update_screen()
 
 
 def draw_screen():
-    SCREEN.fill(BACKGROUND)
-    PORTAL.draw(SCREEN)
-    CLOUDS.draw(SCREEN)
-    BARRIERS.draw(SCREEN)
-    POLES.draw(SCREEN)
-    TREES.draw(SCREEN)
-    DINO.draw(SCREEN)
-    ENEMIES.draw(SCREEN)
+    screen.fill(BACKGROUND)
+    portal.draw(screen)
+    clouds.draw(screen)
+    barriers.draw(screen)
+    poles.draw(screen)
+    trees.draw(screen)
+    dino.draw(screen)
+    enemies.draw(screen)

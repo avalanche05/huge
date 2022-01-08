@@ -1,7 +1,7 @@
 import pygame
 
 from classes.Button import Button
-from constant import BLACK
+from constant import TEXT_COLOR
 
 
 class ChooseButton(Button):
@@ -12,7 +12,7 @@ class ChooseButton(Button):
         self.arguments = args
         self.cur_argument = 0
         self.activated = False
-        self.update_text(self.text + ': ' + str(self.arguments[self.cur_argument]), BLACK)
+        self.update_text(self.text + ': ' + str(self.arguments[self.cur_argument]), TEXT_COLOR)
 
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
@@ -30,4 +30,4 @@ class ChooseButton(Button):
             elif args[0].key == pygame.K_RIGHT:
                 self.cur_argument += 1
         self.cur_argument %= len(self.arguments)
-        self.update_text(self.text + ': ' + str(self.arguments[self.cur_argument]), BLACK)
+        self.update_text(self.text + ': ' + str(self.arguments[self.cur_argument]), TEXT_COLOR)

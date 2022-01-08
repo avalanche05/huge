@@ -2,7 +2,8 @@ from random import choice, randint
 
 import pygame
 
-from constant import WHITE, PLACE_IN_IMAGE, POLES
+from constant import WHITE, PLACE_IN_IMAGE
+from globals import poles
 from helpers.DataHelper import load_image, cut_sheet
 
 
@@ -25,7 +26,7 @@ class Barrier(pygame.sprite.Sprite):
 
         # конструкция ставит препятятвие на платформу
         while True:
-            for elem in POLES:
+            for elem in poles:
                 if pygame.sprite.collide_mask(self, elem):
                     break
             else:

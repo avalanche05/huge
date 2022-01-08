@@ -1,16 +1,11 @@
 import pygame
-from pygame.sprite import Group
 
-import CustomGroup
-
+# SIZE = WIDTH, HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
 SIZE = WIDTH, HEIGHT = 1920, 1080
-SCREEN = pygame.display.set_mode(SIZE)
-bgd = pygame.display.set_mode(SIZE)
 GAME_TITLE = 'the huge.'
 ENEMY_SPEED = 5
 DINO_SPEED = 10
 FPS = 60
-CLOCK = pygame.time.Clock()
 PLACE_IN_IMAGE = {'Enemy': [[2, 1, 260, 0, 444, 100, 80, 80]],
                   'Cloud': [[1, 1, 170, 0, 260, 60, 110, 80]],
                   'Dino': [[6, 1, 1678, 0, 2208, 100, 88, 100],
@@ -24,19 +19,10 @@ GENERATE_CHANCE = {'<Easy>': (1 / 300, 1 / 300, 1 / 5, 2),
                    '<Medium>': (1 / 225, 1 / 225, 1 / 4, 3),
                    '<Hard>': (1 / 150, 1 / 150, 1 / 3, 4)}
 CLOUD_CHANCE = 1 / 100
-SETTINGS = pygame.sprite.Group()
-START_SPRITES = pygame.sprite.Group()
-SETTINGS_SPRITES: Group = pygame.sprite.Group()
-POLES = pygame.sprite.Group()
-TREES = pygame.sprite.Group()
-ENEMIES = pygame.sprite.Group()
-DINO = CustomGroup.CustomGroup()
-BARRIERS = pygame.sprite.Group()
-CLOUDS = pygame.sprite.Group()
-PORTAL = pygame.sprite.Group()
 WHITE = pygame.Color(255, 255, 255)
 BLACK = pygame.Color(0, 0, 0)
 BACKGROUND = pygame.Color(247, 247, 247)
+TEXT_COLOR = pygame.Color(83, 83, 83)
 LEVEL_COUNT = 6
 LEVEL_HEIGHT = 180
 MAX_POLE_LENGTH = 360
