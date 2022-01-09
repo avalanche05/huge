@@ -89,7 +89,7 @@ def started_window():
                 if event.type == pygame.QUIT:
                     terminate()
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    set_pause()
+                    return 
             if is_dino_dead:
                 key = 'key up' if ai_step()[0] else 'key down'
                 is_dino_dead = False

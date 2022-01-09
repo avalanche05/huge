@@ -36,3 +36,5 @@ PLATFORM_SPRITE_LENGTH = 2400
 STARTED_TEXT = 'PRESS ARROW KEY TO START'
 PRESS_UP_TEXT = 'press key up'
 PRESS_DOWN_TEXT = 'press key down'
+MONGO_DB_CONNECTION = "mongodb+srv://Admin:hugebestproject@maincluster.jjykr.mongodb.net" \
+                      "/huge?retryWrites=true&w=majority"
