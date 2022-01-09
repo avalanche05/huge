@@ -17,7 +17,7 @@ from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOS
     GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
     portal, trees, clock, transformation_surface
-from helpers.GenerationHelper import generate_level
+from helpers.GenerationHelper import generate_level, clear_groups
 
 
 def terminate():
@@ -46,7 +46,7 @@ def started_window():
         """функция проверяет наличие препятсвия на расстоянии count пикселей от игрока"""
         for barrier in barriers:
             if barrier.rect.x - dino_sprite.rect.x <= dino_sprite.rect.width + count \
-                    and barrier.rect.x > dino_sprite.rect.x:
+                    and barrier.rect.x + barrier.rect.width > dino_sprite.rect.x:
                 return True
 
         return False
@@ -54,7 +54,8 @@ def started_window():
     def is_enemy_near(count):
         """функция проверяет наличие врага в радиусе count пикселей от игрока"""
         for enemy in enemies:
-            if enemy.rect.x - dino_sprite.rect.x <= dino_sprite.rect.width + count:
+            if enemy.rect.x <= dino_sprite.rect.width + dino_sprite.rect.x + count and \
+                    enemy.rect.x + enemy.rect.width - 10 > dino_sprite.rect.x:
                 return True
 
         return False
@@ -81,13 +82,75 @@ def started_window():
             cloud = Cloud((WIDTH, HEIGHT - 700), -platform_speed // FPS, clouds)
             cloud.move(randint(0, 80))
 
+    def tutorial():
+        nonlocal is_dino_dead, current_x
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    terminate()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    set_pause()
+            if is_dino_dead:
+                key = 'key up' if ai_step()[0] else 'key down'
+                is_dino_dead = False
+                shift = 800
+                for group in (barriers, enemies, clouds):
+                    for sprite in group:
+                        sprite.rect.x += shift
+                current_x += shift
+                current_x %= PLATFORM_SPRITE_LENGTH
+                update_platform()
+                draw_screen()
+                text = font.render(f'You should have pressed {key}', True, TEXT_COLOR)
+                screen.blit(text, (
+                    WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 + text.get_height() // 2))
+                update_screen()
+                clock.tick(1 / 2)
+
+            # генерация объектов
+            generate_barriers()
+            generate_enemies()
+            generate_clouds()
+
+            # обновление координат всех объектов
+            update_platform()
+            clouds.update()
+            barriers.update(platform_speed // FPS)
+            enemies.update()
+
+            # изменение текущего положение всех объектов
+            current_x -= platform_speed // FPS
+            current_x %= PLATFORM_SPRITE_LENGTH
+            is_dino_dead = dino.update(False, False, False, False)
+            draw_screen()
+            is_up, is_down = ai_step()
+            if is_up:
+                text = font.render('press key up', True, TEXT_COLOR)
+                screen.blit(text, (
+                    WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 + text.get_height() // 2))
+            elif is_down:
+                text = font.render('press key down', True, TEXT_COLOR)
+                screen.blit(text, (
+                    WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 + text.get_height() // 2))
+            update_screen()
+
+    def ai_step():
+        is_up = is_barrier_near(150) and not is_enemy_near(400) \
+                or is_barrier_near(150) and is_enemy_near(150) \
+                or is_barrier_near(30)
+        is_down = is_enemy_near(30) and not is_up
+        return is_up, is_down
+
+    # очистка всех спрайтов
+    clear_groups()
     # инициализация спрайтов
     settings_sprite = Settings((WIDTH - 64, 0), settings)
-    username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 100), settings_sprites,
+    username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 105), settings_sprites,
                                  start_text='user')
-    difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2), settings_sprites,
+    difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2 - 35), settings_sprites,
                                     args=['<Easy>', '<Medium>', '<Hard>'])
-    FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 100), settings_sprites, function=terminate)
+    FunctionalButton('Tutorial', (WIDTH // 2, HEIGHT // 2 + 35), settings_sprites, function=tutorial)
+    FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 105), settings_sprites, function=terminate)
     dino_sprite = Dino((100, HEIGHT - 570), dino, is_start=True)
     platform_1 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
     platform_2 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
@@ -106,6 +169,8 @@ def started_window():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                set_pause()
             if not is_player_game and event.type == pygame.KEYDOWN and event.key in (
                     pygame.K_UP, pygame.K_DOWN):
                 difficult_degree = difficult_button.get_text()
@@ -132,11 +197,7 @@ def started_window():
             is_dino_dead = dino.update(False, False, False, False)
             platform_speed += SPEED_BOOST
         else:
-            is_up = is_barrier_near(100) and is_enemy_near(200) or is_barrier_near(
-                20) or is_barrier_near(150) and is_enemy_near(150)
-            is_down = is_enemy_near(30) and dino_sprite.fly_height() < 100 and not is_barrier_near(
-                50)
-            dino.update(is_up, is_down, False, False, True)
+            dino.update(*ai_step(), False, False, True)
         enemies.update()
 
         # изменение текущего положение всех объектов
@@ -164,6 +225,18 @@ def set_black():
         update_screen()
 
 
+def set_pause():
+    transformation_surface.fill((0, 0, 0, 75))
+    screen.blit(transformation_surface, (0, 0))
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:
+                return
+
+
 def update_screen():
     clock.tick(FPS)
     pygame.display.flip()
@@ -179,7 +252,8 @@ def game_window(difficult_degree):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                set_pause()
             if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
                 set_black()
                 generate_level(barrier_chance, max_enemy_count)

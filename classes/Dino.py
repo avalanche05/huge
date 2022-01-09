@@ -141,8 +141,8 @@ class Dino(pygame.sprite.Sprite):
         else:
             return self.level_update(up, down, left, right)
 
-    def fly_height(self):
-        return self.start_y - self.rect.y
+    def get_speed(self):
+        return self.vertical_speed
 
     def cross(self, group):
         """метод проверяет пересечение спрайта Dino с любым из спрайтов группы group"""

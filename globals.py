@@ -1,7 +1,6 @@
 import pygame
 
 from CustomGroup import CustomGroup
-from constant import SIZE
 
 screen = pygame.display.set_mode(flags=pygame.FULLSCREEN)
 transformation_surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
