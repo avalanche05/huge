@@ -14,7 +14,7 @@ from classes.Pole import Pole
 from classes.Settings import Settings
 from classes.TextButton import TextButton
 from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, \
-    GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT
+    GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT, PRESS_UP_TEXT, PRESS_DOWN_TEXT
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
     portal, trees, clock, transformation_surface
 from helpers.GenerationHelper import generate_level, clear_groups
@@ -125,11 +125,11 @@ def started_window():
             draw_screen()
             is_up, is_down = ai_step()
             if is_up:
-                text = font.render('press key up', True, TEXT_COLOR)
+                text = font.render(PRESS_UP_TEXT, True, TEXT_COLOR)
                 screen.blit(text, (
                     WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 + text.get_height() // 2))
             elif is_down:
-                text = font.render('press key down', True, TEXT_COLOR)
+                text = font.render(PRESS_DOWN_TEXT, True, TEXT_COLOR)
                 screen.blit(text, (
                     WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 + text.get_height() // 2))
             update_screen()
