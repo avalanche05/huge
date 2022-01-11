@@ -1,7 +1,9 @@
 from math import ceil
 
 import pygame
+import uuid
 
+UUID = uuid.getnode()
 pygame.init()
 SIZE = WIDTH, HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
 GAME_TITLE = 'the huge.'
@@ -40,3 +42,4 @@ PRESS_UP_TEXT = 'press key up'
 PRESS_DOWN_TEXT = 'press key down'
 MONGO_DB_CONNECTION = "mongodb+srv://Admin:hugebestproject@maincluster.jjykr.mongodb.net" \
                       "/huge?retryWrites=true&w=majority"
+DEFAULT_NAME = 'unidentified otter'

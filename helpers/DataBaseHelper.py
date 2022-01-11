@@ -6,24 +6,35 @@ from constant import MONGO_DB_CONNECTION
 
 def init_db():
     client = pymongo.MongoClient(MONGO_DB_CONNECTION)
-    db = client.huge
-    return db
+    return client.huge
 
 
-def is_user_ip_contain(user: User) -> bool:
-    """функция проверяет играли ли в игру с компьютера с текущим IP"""
+db = init_db()
 
-    db = init_db()
 
-    return db.users.find_one({"ip": user.ip})
+def is_mac_contain(mac: str) -> bool:
+    """функция проверяет играли ли в игру с компьютера с текущим MAC-адресом"""
+
+    return db.users.find_one({"mac": mac})
+
+
+def is_username_contain(user: User) -> bool:
+    """функция проверяет играли ли в игру с таким именем"""
+
+    return db.users.find_one({"username": user.username})
+
+
+def get_username(uuid: str):
+    """функция возвращает username, который привязан к текущему MAC-адресу"""
+
+    return db.users.find_one({"mac": uuid})['username']
 
 
 def add_user_in_db(user: User) -> bool:
     """
-    функция добавляет текущий ip компьютера в базу данных.
+    функция добавляет текущий MAC-адресс компьютера в базу данных.
     Возвращает True, если операция успешна.
     """
-    db = init_db()
 
     try:
         db.users.insert_one(user.get_dict())
@@ -35,12 +46,12 @@ def add_user_in_db(user: User) -> bool:
 
 def update_user_in_db(user):
     """
-        функция обновляет username текущего ip
-        Возвращает True, если операция успешна.
-        """
-    db = init_db()
+    функция обновляет username текущего MAC-адреса
+    Возвращает True, если операция успешна.
+    """
     try:
-        db.users.update_one({"ip": user.ip}, {"username": user.username})
+        db.users.update_one({"mac": user.mac},
+                            {"$set": {"username": user.username, "best_score": user.best_score}})
         return True
     except Exception as e:
         print(e)

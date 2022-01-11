@@ -13,10 +13,13 @@ from classes.FunctionalButton import FunctionalButton
 from classes.Pole import Pole
 from classes.Settings import Settings
 from classes.TextButton import TextButton
+from classes.User import User
 from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, \
-    GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT, PRESS_UP_TEXT, PRESS_DOWN_TEXT
+    GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT, PRESS_UP_TEXT, PRESS_DOWN_TEXT, UUID, \
+    DEFAULT_NAME
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
     portal, trees, clock, transformation_surface
+from helpers.DataBaseHelper import is_mac_contain, get_username, update_user_in_db, add_user_in_db
 from helpers.GenerationHelper import generate_level, clear_groups
 
 
@@ -68,7 +71,8 @@ def started_window():
     def generate_enemies():
         # генерация врага происходит случайно
         if not randrange(0, 1 // enemy_chance) and is_generate_correct():
-            Enemy((WIDTH, HEIGHT * 0.6 - 110), -(platform_speed + 240) // FPS, enemies, is_start=True)
+            Enemy((WIDTH, HEIGHT * 0.6 - 110), -(platform_speed + 240) // FPS, enemies,
+                  is_start=True)
 
     def generate_barriers():
         # генерация барьера происходит случайно
@@ -89,7 +93,7 @@ def started_window():
                 if event.type == pygame.QUIT:
                     terminate()
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    return 
+                    return
             if is_dino_dead:
                 key = 'key up' if ai_step()[0] else 'key down'
                 is_dino_dead = False
@@ -146,8 +150,13 @@ def started_window():
     clear_groups()
     # инициализация спрайтов
     settings_sprite = Settings((WIDTH - 64, 0), settings)
+
+    if is_mac_contain(UUID):
+        username = get_username(UUID)
+    else:
+        username = DEFAULT_NAME
     username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 105), settings_sprites,
-                                 start_text='user')
+                                 start_text=username)
     difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2 - 35), settings_sprites,
                                     args=['<Easy>', '<Medium>', '<Hard>'])
     FunctionalButton('Tutorial', (WIDTH // 2, HEIGHT // 2 + 35), settings_sprites, function=tutorial)
@@ -166,6 +175,16 @@ def started_window():
     text = font.render(STARTED_TEXT, True, TEXT_COLOR)
     is_player_game = False
     is_dino_dead = False
+
+    def update_name():
+
+        user = User(username_button.get_text(), UUID)
+
+        if is_mac_contain(UUID):
+            update_user_in_db(user)
+        else:
+            add_user_in_db(user)
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -177,6 +196,7 @@ def started_window():
                 difficult_degree = difficult_button.get_text()
                 barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree][:2]
                 is_player_game = True
+                update_name()
             if not is_player_game:
                 settings_sprite.position().update(event)
                 settings.update(event)

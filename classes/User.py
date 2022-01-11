@@ -1,7 +1,8 @@
 class User:
-    def __init__(self, username: str, ip: str):
+    def __init__(self, username: str, mac: str, best_score: int = 0):
         self.username = username
-        self.ip = ip
+        self.mac = mac
+        self.best_score = best_score
 
     def get_dict(self):
-        return {"ip": self.ip, "username": self.username}
+        return {"mac": self.mac, "username": self.username, "best_score": self.best_score}

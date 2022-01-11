@@ -13,6 +13,7 @@ class TextButton(Button):
         self.activated = False
         self.update_text(self.text + ': ' + self.added_text, SETTINGS_TEXT_COLOR)
 
+
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
                 self.rect.collidepoint(args[0].pos):
@@ -28,4 +29,5 @@ class TextButton(Button):
             else:
                 self.added_text += args[0].unicode if args[0].unicode.isalnum() or args[
                     0].unicode == ' ' else ''
+
         self.update_text(self.text + ': ' + self.added_text, SETTINGS_TEXT_COLOR)
