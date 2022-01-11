@@ -1,3 +1,5 @@
+from math import ceil
+
 import pygame
 
 pygame.init()
@@ -24,8 +26,8 @@ BLACK = pygame.Color(0, 0, 0)
 BACKGROUND = pygame.Color(247, 247, 247)
 TEXT_COLOR = pygame.Color(83, 83, 83)
 SETTINGS_TEXT_COLOR = BLACK
-LEVEL_COUNT = 6
 LEVEL_HEIGHT = 180
+LEVEL_COUNT = ceil(HEIGHT / LEVEL_HEIGHT)
 MAX_POLE_LENGTH = 360
 MIN_POLE_LENGTH = 108
 MAX_SPACE_LENGTH = 360

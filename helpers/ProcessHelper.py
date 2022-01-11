@@ -68,18 +68,18 @@ def started_window():
     def generate_enemies():
         # генерация врага происходит случайно
         if not randrange(0, 1 // enemy_chance) and is_generate_correct():
-            Enemy((WIDTH, HEIGHT - 600), -(platform_speed + 240) // FPS, enemies, is_start=True)
+            Enemy((WIDTH, HEIGHT * 0.6 - 110), -(platform_speed + 240) // FPS, enemies, is_start=True)
 
     def generate_barriers():
         # генерация барьера происходит случайно
         if not randrange(0, 1 // barrier_chance) and is_generate_correct():
-            barrier = Barrier((WIDTH, HEIGHT - 580), barriers)
+            barrier = Barrier((WIDTH, HEIGHT * 0.6 - 100), barriers)
             barrier.move(randint(0, 15))
 
     def generate_clouds():
         # генерация барьера происходит случайно
         if not randrange(0, int(1 // CLOUD_CHANCE)):
-            cloud = Cloud((WIDTH, HEIGHT - 700), -platform_speed // FPS, clouds)
+            cloud = Cloud((WIDTH, HEIGHT * 0.6 - 200), -platform_speed // FPS, clouds)
             cloud.move(randint(0, 80))
 
     def tutorial():
@@ -99,6 +99,7 @@ def started_window():
                         sprite.rect.x += shift
                 current_x += shift
                 current_x %= PLATFORM_SPRITE_LENGTH
+                dino_sprite.rect.y = dino_sprite.start_y
                 update_platform()
                 draw_screen()
                 text = font.render(f'You should have pressed {key}', True, TEXT_COLOR)
@@ -151,9 +152,9 @@ def started_window():
                                     args=['<Easy>', '<Medium>', '<Hard>'])
     FunctionalButton('Tutorial', (WIDTH // 2, HEIGHT // 2 + 35), settings_sprites, function=tutorial)
     FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 105), settings_sprites, function=terminate)
-    dino_sprite = Dino((100, HEIGHT - 570), dino, is_start=True)
-    platform_1 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
-    platform_2 = Pole((0, HEIGHT - 500), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
+    dino_sprite = Dino((100, HEIGHT * 0.6 - 70), dino, is_start=True)
+    platform_1 = Pole((0, HEIGHT * 0.6), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
+    platform_2 = Pole((0, HEIGHT * 0.6), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
     # инициализация переменных
     difficult_degree = difficult_button.get_text()
     barrier_chance, enemy_chance = GENERATE_CHANCE[difficult_degree][:2]
