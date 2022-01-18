@@ -8,7 +8,8 @@ from classes.Pole import Pole
 from classes.Portal import Portal
 from constant import LEVEL_COUNT, MIN_SPACE_LENGTH, MAX_SPACE_LENGTH, MAX_POLE_LENGTH, \
     MIN_POLE_LENGTH, WIDTH, MAX_GAP, LEVEL_HEIGHT
-from globals import barriers, enemies, poles, clouds, portal, dino
+from globals import barriers, enemies, poles, clouds, portal, dino, settings_sprites, \
+    start_sprites, settings, trees
 
 
 def generate_barriers(start_x, stop_x, chance, y):
@@ -32,7 +33,9 @@ def generate_clouds(level, count):
 
 
 def clear_groups():
-    for group in (dino, barriers, enemies, poles, clouds, portal):
+    for group in (
+            settings, settings_sprites, start_sprites, dino, barriers, enemies, trees, poles, clouds,
+            portal):
         for sprite in group:
             sprite.kill()
 

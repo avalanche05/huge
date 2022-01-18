@@ -1,7 +1,7 @@
 import pygame
 
 from constant import WHITE, PLACE_IN_IMAGE, DINO_SPEED, FPS, WIDTH, HEIGHT
-from globals import poles, enemies, barriers
+from globals import poles, enemies, barriers, portal
 from helpers.DataHelper import load_image, cut_sheet
 
 
@@ -131,6 +131,8 @@ class Dino(pygame.sprite.Sprite):
         if (self.cross(enemies) or self.cross(barriers)) and not is_ai_play:
             self.set_dead()
             return True
+        if self.cross(portal):
+            return -1
         keys = pygame.key.get_pressed()
         up |= keys[pygame.K_UP]
         down |= keys[pygame.K_DOWN]

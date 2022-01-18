@@ -56,3 +56,9 @@ def update_user_in_db(user):
     except Exception as e:
         print(e)
         return False
+
+
+def get_best_score_top():
+    """функция возвращает топ участников игры"""
+    return db.users.find()
+

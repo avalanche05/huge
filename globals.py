@@ -15,3 +15,5 @@ dino = CustomGroup()
 barriers = pygame.sprite.Group()
 clouds = pygame.sprite.Group()
 portal = pygame.sprite.Group()
+score = 0
+

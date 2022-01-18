@@ -16,10 +16,10 @@ from classes.TextButton import TextButton
 from classes.User import User
 from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, \
     GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT, PRESS_UP_TEXT, PRESS_DOWN_TEXT, UUID, \
-    DEFAULT_NAME
+    DEFAULT_NAME, BLACK, FINAL_WINDOW_COLOR, FINAL_TEXT, SCORE_COUNT
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
-    portal, trees, clock, transformation_surface
-from helpers.DataBaseHelper import is_mac_contain, get_username, update_user_in_db, add_user_in_db
+    portal, trees, clock, transformation_surface, score
+# from helpers.DataBaseHelper import is_mac_contain, get_username, update_user_in_db, add_user_in_db
 from helpers.GenerationHelper import generate_level, clear_groups
 
 
@@ -31,6 +31,7 @@ def terminate():
 
 def started_window():
     """Работа стартового окна"""
+    global score
 
     def biggest_x():
         ans = -200
@@ -151,10 +152,11 @@ def started_window():
     # инициализация спрайтов
     settings_sprite = Settings((WIDTH - 64, 0), settings)
 
-    if is_mac_contain(UUID):
-        username = get_username(UUID)
-    else:
-        username = DEFAULT_NAME
+    # if is_mac_contain(UUID):
+    #     username = get_username(UUID)
+    # else:
+    #     username = DEFAULT_NAME
+    username = DEFAULT_NAME
     username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 105), settings_sprites,
                                  start_text=username)
     difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2 - 35), settings_sprites,
@@ -171,6 +173,7 @@ def started_window():
     platform_speed = 600
     alpha = 0
     addend = 8
+    color = [0, 0, 0, 255]
     font = pygame.font.Font(os.path.abspath('data/font.ttf'), 32)
     text = font.render(STARTED_TEXT, True, TEXT_COLOR)
     is_player_game = False
@@ -180,16 +183,16 @@ def started_window():
 
         user = User(username_button.get_text(), UUID)
 
-        if is_mac_contain(UUID):
-            update_user_in_db(user)
-        else:
-            add_user_in_db(user)
+        # if is_mac_contain(UUID):
+        #     update_user_in_db(user)
+        # else:
+        #     add_user_in_db(user)
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                 set_pause()
             if not is_player_game and event.type == pygame.KEYDOWN and event.key in (
                     pygame.K_UP, pygame.K_DOWN):
@@ -204,6 +207,7 @@ def started_window():
                 game_window(difficult_degree)
         if is_dino_dead:
             continue
+
         # генерация объектов
         generate_barriers()
         generate_enemies()
@@ -217,6 +221,7 @@ def started_window():
         if is_player_game:
             is_dino_dead = dino.update(False, False, False, False)
             platform_speed += SPEED_BOOST
+            score += 3
         else:
             dino.update(*ai_step(), False, False, True)
         enemies.update()
@@ -234,13 +239,45 @@ def started_window():
             addend = addend if 0 <= alpha <= 255 else -addend
             screen.blit(text,
                         (WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 + text.get_height() // 2))
+        transformation_surface.fill(color)
+        screen.blit(transformation_surface, (0, 0))
+        color[-1] = max(color[-1] - 5, 0)
 
         update_screen()
 
 
-def set_black():
+def final_screen():
+    global score
+    set_color(FINAL_WINDOW_COLOR)
+    alpha = 255
+    addend = 5
+    font = pygame.font.Font(os.path.abspath('data/font.ttf'), 32)
+    text = font.render(FINAL_TEXT, True, TEXT_COLOR)
+    font = pygame.font.Font(os.path.abspath('data/font.ttf'), 64)
+    score = max(0, score)
+    score_text = font.render(f'{SCORE_COUNT} {score}', True, TEXT_COLOR)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:
+                started_window()
+        text.set_alpha(alpha)
+        alpha += addend
+        addend = addend if 0 <= alpha <= 255 else -addend
+        alpha += 0 if 0 <= alpha <= 255 else addend
+        screen.fill(FINAL_WINDOW_COLOR)
+        screen.blit(text,
+                    (WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 - text.get_height() // 2))
+        screen.blit(score_text,
+                    (WIDTH // 2 - score_text.get_width() // 2,
+                     HEIGHT * 0.5 - score_text.get_height() // 2))
+        update_screen()
+
+
+def set_color(color: pygame.Color):
     for i in range(0, 256, 15):
-        color = (0, 0, 0, i)
+        color.a = i
         transformation_surface.fill(color)
         screen.blit(transformation_surface, (0, 0))
         update_screen()
@@ -264,25 +301,33 @@ def update_screen():
 
 
 def game_window(difficult_degree):
+    global score
     barrier_chance, max_enemy_count = GENERATE_CHANCE[difficult_degree][2:]
     generate_level(barrier_chance, max_enemy_count)
     is_dino_dead = False
     color = [0, 0, 0, 255]
-    set_black()
+    set_color(BLACK)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and not is_dino_dead:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                set_color(BLACK)
+                started_window()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_p and not is_dino_dead:
                 set_pause()
             if is_dino_dead and event.type == pygame.KEYDOWN and event.key in (pygame.K_SPACE,):
-                set_black()
+                set_color(BLACK)
                 generate_level(barrier_chance, max_enemy_count)
                 is_dino_dead = False
                 color[-1] = 255
+                score -= 500
         if is_dino_dead:
             continue
         is_dino_dead = dino.update()
+        if is_dino_dead == -1:
+            final_screen()
+        score -= 1
         clouds.update()
         enemies.update()
         portal.update()
@@ -290,7 +335,7 @@ def game_window(difficult_degree):
         draw_screen()
         transformation_surface.fill(color)
         screen.blit(transformation_surface, (0, 0))
-        color[-1] = max(color[-1] - 5, 0)
+        color[-1] = max(color[-1] - 3, 0)
         update_screen()
 
 
