@@ -19,7 +19,7 @@ from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOS
     DEFAULT_NAME, BLACK, FINAL_WINDOW_COLOR, FINAL_TEXT, SCORE_COUNT
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
     portal, trees, clock, transformation_surface, score
-# from helpers.DataBaseHelper import is_mac_contain, get_username, update_user_in_db, add_user_in_db
+from helpers.DataBaseHelper import is_mac_contain, get_username, update_user_in_db, add_user_in_db
 from helpers.GenerationHelper import generate_level, clear_groups
 
 
@@ -152,11 +152,10 @@ def started_window():
     # инициализация спрайтов
     settings_sprite = Settings((WIDTH - 64, 0), settings)
 
-    # if is_mac_contain(UUID):
-    #     username = get_username(UUID)
-    # else:
-    #     username = DEFAULT_NAME
-    username = DEFAULT_NAME
+    if is_mac_contain(UUID):
+        username = get_username(UUID)
+    else:
+        username = DEFAULT_NAME
     username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 105), settings_sprites,
                                  start_text=username)
     difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2 - 35), settings_sprites,
@@ -183,10 +182,10 @@ def started_window():
 
         user = User(username_button.get_text(), UUID)
 
-        # if is_mac_contain(UUID):
-        #     update_user_in_db(user)
-        # else:
-        #     add_user_in_db(user)
+        if is_mac_contain(UUID):
+            update_user_in_db(user)
+        else:
+            add_user_in_db(user)
 
     while True:
         for event in pygame.event.get():
