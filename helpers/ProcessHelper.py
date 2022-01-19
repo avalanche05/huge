@@ -18,7 +18,7 @@ from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOS
     GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT, PRESS_UP_TEXT, PRESS_DOWN_TEXT, UUID, \
     DEFAULT_NAME, BLACK, FINAL_WINDOW_COLOR, FINAL_TEXT, SCORE_COUNT
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
-    portal, trees, clock, transformation_surface, score
+    portal, trees, clock, transformation_surface, score, user
 from helpers.DataBaseHelper import is_mac_contain, get_username, update_user_in_db, add_user_in_db
 from helpers.GenerationHelper import generate_level, clear_groups
 
@@ -180,7 +180,7 @@ def started_window():
 
     def update_name():
 
-        user = User(username_button.get_text(), UUID)
+        user.set_username(username_button.get_text())
 
         if is_mac_contain(UUID):
             update_user_in_db(user)
@@ -245,7 +245,7 @@ def started_window():
         update_screen()
 
 
-def final_screen():
+def final_screen(difficult_degree):
     global score
     set_color(FINAL_WINDOW_COLOR)
     alpha = 255
@@ -254,6 +254,7 @@ def final_screen():
     text = font.render(FINAL_TEXT, True, TEXT_COLOR)
     font = pygame.font.Font(os.path.abspath('data/font.ttf'), 64)
     score = max(0, score)
+    score *= GENERATE_CHANCE[difficult_degree][-1]
     score_text = font.render(f'{SCORE_COUNT} {score}', True, TEXT_COLOR)
     while True:
         for event in pygame.event.get():
@@ -301,7 +302,7 @@ def update_screen():
 
 def game_window(difficult_degree):
     global score
-    barrier_chance, max_enemy_count = GENERATE_CHANCE[difficult_degree][2:]
+    barrier_chance, max_enemy_count = GENERATE_CHANCE[difficult_degree][2:-1]
     generate_level(barrier_chance, max_enemy_count)
     is_dino_dead = False
     color = [0, 0, 0, 255]
@@ -325,7 +326,7 @@ def game_window(difficult_degree):
             continue
         is_dino_dead = dino.update()
         if is_dino_dead == -1:
-            final_screen()
+            final_screen(difficult_degree)
         score -= 1
         clouds.update()
         enemies.update()

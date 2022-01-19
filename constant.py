@@ -19,14 +19,14 @@ PLACE_IN_IMAGE = {'Enemy': [[2, 1, 260, 0, 444, 100, 80, 80]],
                   'Portal': [[1, 1, 1, 1, 255, 255, 254, 254]]}
 # в словаре находятся шансы генерации в соответсвии с уровнем сложности
 # последовательность: barrier_chance, enemy_chance, max_enemy_count
-GENERATE_CHANCE = {'<Easy>': (1 / 300, 1 / 300, 1 / 5, 2),
-                   '<Medium>': (1 / 225, 1 / 225, 1 / 4, 3),
-                   '<Hard>': (1 / 150, 1 / 150, 1 / 3, 4)}
+GENERATE_CHANCE = {'<Easy>': (1 / 300, 1 / 300, 1 / 5, 2, 1),
+                   '<Medium>': (1 / 225, 1 / 225, 1 / 4, 3, 2),
+                   '<Hard>': (1 / 150, 1 / 150, 1 / 3, 4, 3)}
 CLOUD_CHANCE = 1 / 100
 WHITE = pygame.Color(255, 255, 255)
 BLACK = pygame.Color(0, 0, 0)
 BACKGROUND = pygame.Color(247, 247, 247)
-FINAL_WINDOW_COLOR = pygame.Color(20, 20, 20)
+FINAL_WINDOW_COLOR = pygame.Color(30, 30, 30)
 TEXT_COLOR = pygame.Color(83, 83, 83)
 SETTINGS_TEXT_COLOR = BLACK
 LEVEL_HEIGHT = 180
