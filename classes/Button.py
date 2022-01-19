@@ -15,7 +15,8 @@ class Button(pygame.sprite.Sprite):
         self.x, self.y = pos
 
     def update_text(self, text, bg):
-        self.current_text = text.split(': ')[1][:20] if ': ' in text else None
+        self.current_text = text.split(': ')[1][:18] if ': ' in text else None
+        text = text.split(': ')[0] + ': ' + self.current_text if ': ' in text else text
         # текст
         font = pygame.font.Font(os.path.abspath('data/font.ttf'), 40)
         self.render_text = font.render(text, True, bg)

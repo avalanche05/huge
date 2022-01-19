@@ -34,9 +34,8 @@ class Table:
             pygame.draw.rect(self.screen, BLACK,
                              (self.x + sum(self.ratio[:0]) * self.width, self.y + i * self.height,
                               self.ratio[0] * self.width, self.height), 1)
-            text = pygame.transform.scale(font.render(str(i + 1), True, TEXT_COLOR),
-                                          (self.ratio[0] * self.width, self.height))
-            self.screen.blit(text, (self.x + sum(self.ratio[:0]) * self.width + 2, self.y + i * self.height))
+            text = font.render(str(i + 1), True, TEXT_COLOR)
+            self.screen.blit(text, (self.x + sum(self.ratio[:0]) * self.width + (self.ratio[0] * self.width - text.get_width()) // 2, self.y + i * self.height))
             pygame.draw.rect(self.screen, BLACK,
                              (self.x + sum(self.ratio[:1]) * self.width, self.y + i * self.height,
                               self.ratio[1] * self.width, self.height), 1)
@@ -45,7 +44,5 @@ class Table:
             pygame.draw.rect(self.screen, BLACK,
                              (self.x + sum(self.ratio[:2]) * self.width, self.y + i * self.height,
                               self.ratio[2] * self.width, self.height), 1)
-            text = pygame.transform.scale(
-                font.render(str(self.top[i][1]).rjust(5, '0'), True, TEXT_COLOR),
-                (self.ratio[2] * self.width, self.height))
-            self.screen.blit(text, (self.x + sum(self.ratio[:2]) * self.width, self.y + i * self.height))
+            text = font.render(str(self.top[i][1]).rjust(5, '0'), True, TEXT_COLOR)
+            self.screen.blit(text, (self.x + sum(self.ratio[:2]) * self.width + (self.ratio[2] * self.width - text.get_width()) // 2, self.y + i * self.height))
