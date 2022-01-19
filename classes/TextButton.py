@@ -2,6 +2,8 @@ import pygame
 
 from classes.Button import Button
 from constant import SETTINGS_TEXT_COLOR
+from globals import table, user
+from helpers.DataBaseHelper import update_user_in_db
 
 
 class TextButton(Button):
@@ -13,7 +15,6 @@ class TextButton(Button):
         self.activated = False
         self.update_text(self.text + ': ' + self.added_text, SETTINGS_TEXT_COLOR)
 
-
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and \
                 self.rect.collidepoint(args[0].pos):
@@ -24,6 +25,9 @@ class TextButton(Button):
         if args and args[0].type == pygame.KEYDOWN and self.activated:
             if args[0].key == pygame.K_RETURN:
                 self.activated = False
+                user.set_username(self.get_text())
+                update_user_in_db(user)
+                table.update()
             elif args[0].key == pygame.K_BACKSPACE:
                 self.added_text = self.added_text[:-1]
             else:

@@ -1,9 +1,10 @@
 import pygame
 
 from CustomGroup import CustomGroup
+from classes.Table import Table
 from classes.User import User
 from constant import UUID, DEFAULT_NAME
-from helpers.DataBaseHelper import is_mac_contain, get_username
+from helpers.DataBaseHelper import is_mac_contain, get_username, get_best_score
 
 screen = pygame.display.set_mode(flags=pygame.FULLSCREEN)
 transformation_surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
@@ -19,4 +20,6 @@ barriers = pygame.sprite.Group()
 clouds = pygame.sprite.Group()
 portal = pygame.sprite.Group()
 score = 0
-user = User(get_username(UUID) if is_mac_contain(UUID) else DEFAULT_NAME, UUID, 0)
+user = User(get_username(UUID) if is_mac_contain(UUID) else DEFAULT_NAME, UUID,
+            get_best_score(UUID) if is_mac_contain(UUID) else 0)
+table = Table(0, 0, 40, 40, screen=screen)

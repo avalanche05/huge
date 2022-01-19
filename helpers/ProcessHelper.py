@@ -18,7 +18,7 @@ from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOS
     GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT, PRESS_UP_TEXT, PRESS_DOWN_TEXT, UUID, \
     DEFAULT_NAME, BLACK, FINAL_WINDOW_COLOR, FINAL_TEXT, SCORE_COUNT
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
-    portal, trees, clock, transformation_surface, score, user
+    portal, trees, clock, transformation_surface, score, user, table
 from helpers.DataBaseHelper import is_mac_contain, get_username, update_user_in_db, add_user_in_db
 from helpers.GenerationHelper import generate_level, clear_groups
 
@@ -147,6 +147,8 @@ def started_window():
         is_down = is_enemy_near(30) and not is_up
         return is_up, is_down
 
+    # обновление таблицы
+    table.update()
     # очистка всех спрайтов
     clear_groups()
     # инициализация спрайтов
@@ -241,7 +243,7 @@ def started_window():
         transformation_surface.fill(color)
         screen.blit(transformation_surface, (0, 0))
         color[-1] = max(color[-1] - 5, 0)
-
+        table.render()
         update_screen()
 
 
@@ -255,6 +257,8 @@ def final_screen(difficult_degree):
     font = pygame.font.Font(os.path.abspath('data/font.ttf'), 64)
     score = max(0, score)
     score *= GENERATE_CHANCE[difficult_degree][-1]
+    user.set_best_score(score)
+    update_user_in_db(user)
     score_text = font.render(f'{SCORE_COUNT} {score}', True, TEXT_COLOR)
     while True:
         for event in pygame.event.get():

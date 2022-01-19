@@ -18,6 +18,10 @@ def is_mac_contain(mac: str) -> bool:
     return db.users.find_one({"mac": mac})
 
 
+def get_best_score(mac: str):
+    return db.users.find_one({"mac": mac})['best_score']
+
+
 def is_username_contain(user: User) -> bool:
     """функция проверяет играли ли в игру с таким именем"""
 
@@ -60,5 +64,4 @@ def update_user_in_db(user):
 
 def get_best_score_top():
     """функция возвращает топ участников игры"""
-    return db.users.find()
-
+    return db.users.find({}, {'_id': 0, 'username': 1, 'best_score': 1})
