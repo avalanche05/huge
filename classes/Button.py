@@ -2,8 +2,6 @@ import os
 
 import pygame
 
-from constant import BACKGROUND, TEXT_COLOR
-
 
 class Button(pygame.sprite.Sprite):
     """Базовый класс любой кнопки"""

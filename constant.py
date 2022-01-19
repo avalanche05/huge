@@ -1,7 +1,7 @@
+import uuid
 from math import ceil
 
 import pygame
-import uuid
 
 UUID = uuid.getnode()
 pygame.init()

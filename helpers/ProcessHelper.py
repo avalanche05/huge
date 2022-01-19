@@ -13,12 +13,11 @@ from classes.FunctionalButton import FunctionalButton
 from classes.Pole import Pole
 from classes.Settings import Settings
 from classes.TextButton import TextButton
-from classes.User import User
 from constant import BACKGROUND, FPS, HEIGHT, PLATFORM_SPRITE_LENGTH, SPEED_BOOST, WIDTH, \
     GENERATE_CHANCE, CLOUD_CHANCE, TEXT_COLOR, STARTED_TEXT, PRESS_UP_TEXT, PRESS_DOWN_TEXT, UUID, \
     DEFAULT_NAME, BLACK, FINAL_WINDOW_COLOR, FINAL_TEXT, SCORE_COUNT
 from globals import barriers, enemies, settings, clouds, settings_sprites, poles, dino, screen, \
-    portal, trees, clock, transformation_surface, score, user, table
+    portal, trees, clock, transformation_surface, user, table, score
 from helpers.DataBaseHelper import is_mac_contain, get_username, update_user_in_db, add_user_in_db
 from helpers.GenerationHelper import generate_level, clear_groups
 
@@ -180,6 +179,7 @@ def started_window():
     alpha = 0
     addend = 8
     color = [0, 0, 0, 255]
+    is_top_show = False
     font = pygame.font.Font(os.path.abspath('data/font.ttf'), 32)
     text = font.render(STARTED_TEXT, True, TEXT_COLOR)
     is_player_game = False
@@ -223,7 +223,8 @@ def started_window():
         update_platform()
         clouds.update()
         barriers.update(platform_speed // FPS)
-
+        if top_button.get_text() == '<ON>' and not is_top_show:
+            table.update()
         is_top_show = True if top_button.get_text() == '<ON>' else False
         if is_player_game:
             is_dino_dead = dino.update(False, False, False, False)
