@@ -178,6 +178,7 @@ def started_window():
     platform_speed = 600
     alpha = 0
     addend = 8
+    score = 0
     color = [0, 0, 0, 255]
     is_top_show = False
     font = pygame.font.Font(os.path.abspath('data/font.ttf'), 32)
