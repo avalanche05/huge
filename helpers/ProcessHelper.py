@@ -229,7 +229,7 @@ def started_window():
         if is_player_game:
             is_dino_dead = dino.update(False, False, False, False)
             platform_speed += SPEED_BOOST
-            score += 3
+            score += 1
         else:
             dino.update(*ai_step(), False, False, True)
         enemies.update()
