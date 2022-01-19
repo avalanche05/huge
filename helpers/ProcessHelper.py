@@ -87,10 +87,6 @@ def started_window():
             cloud = Cloud((WIDTH, HEIGHT * 0.6 - 200), -platform_speed // FPS, clouds)
             cloud.move(randint(0, 80))
 
-    def top():
-        nonlocal is_top_show
-        is_top_show = not is_top_show
-
     def tutorial():
         nonlocal is_dino_dead, current_x
         while True:
@@ -153,6 +149,8 @@ def started_window():
         is_down = is_enemy_near(30) and not is_up
         return is_up, is_down
 
+    if not is_mac_contain(UUID):
+        add_user_in_db(user)
     # обновление таблицы
     table.update()
     # очистка всех спрайтов
@@ -169,7 +167,7 @@ def started_window():
     difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2 - 70), settings_sprites,
                                     args=['<Easy>', '<Medium>', '<Hard>'])
     FunctionalButton('Tutorial', (WIDTH // 2, HEIGHT // 2), settings_sprites, function=tutorial)
-    FunctionalButton('Top', (WIDTH // 2, HEIGHT // 2 + 70), settings_sprites, function=top)
+    top_button = ChooseButton('Top', (WIDTH // 2, HEIGHT // 2 + 70), settings_sprites, args=['<OFF>', '<ON>'])
     FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 140), settings_sprites, function=terminate)
     dino_sprite = Dino((100, HEIGHT * 0.6 - 70), dino, is_start=True)
     platform_1 = Pole((0, HEIGHT * 0.6), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
@@ -186,7 +184,6 @@ def started_window():
     text = font.render(STARTED_TEXT, True, TEXT_COLOR)
     is_player_game = False
     is_dino_dead = False
-    is_top_show = False
 
     def update_name():
 
@@ -227,6 +224,7 @@ def started_window():
         clouds.update()
         barriers.update(platform_speed // FPS)
 
+        is_top_show = True if top_button.get_text() == '<ON>' else False
         if is_player_game:
             is_dino_dead = dino.update(False, False, False, False)
             platform_speed += SPEED_BOOST

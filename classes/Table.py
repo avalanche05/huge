@@ -32,33 +32,14 @@ class Table:
         self.cur_user = [raw[self.cur_index]['username'], raw[self.cur_index]['best_score'], raw[self.cur_index]['mac']]
         self.top = list(filter(lambda x: x[1] != 0, map(lambda x: (x['username'], x['best_score'], x['mac']), raw[:5])))
 
-    def render_line(self, i):
-        font = pygame.font.Font(os.path.abspath('data/font.ttf'), 32)
-        pygame.draw.rect(self.screen, BLACK,
-                         (self.x + sum(self.ratio[:0]) * self.width, self.y + i * self.height,
-                          self.ratio[0] * self.width, self.height), 1)
-        text = font.render(str(i + 1), True, TEXT_COLOR)
-        self.screen.blit(text, (
-            self.x + sum(self.ratio[:0]) * self.width + (self.ratio[0] * self.width - text.get_width()) // 2,
-            self.y + i * self.height))
-        pygame.draw.rect(self.screen, BLACK,
-                         (self.x + sum(self.ratio[:1]) * self.width, self.y + i * self.height,
-                          self.ratio[1] * self.width, self.height), 1)
-        text = font.render(self.top[i][0], True, TEXT_COLOR)
-        self.screen.blit(text, (
-            self.x + sum(self.ratio[:1]) * self.width + (self.ratio[1] * self.width - text.get_width()) // 2,
-            self.y + i * self.height))
-        pygame.draw.rect(self.screen, BLACK,
-                         (self.x + sum(self.ratio[:2]) * self.width, self.y + i * self.height,
-                          self.ratio[2] * self.width, self.height), 1)
-        text = font.render(str(self.top[i][1]), True, TEXT_COLOR)
-        self.screen.blit(text, (
-            self.x + sum(self.ratio[:2]) * self.width + (self.ratio[2] * self.width - text.get_width()) // 2,
-            self.y + i * self.height))
-
     def render(self):
         flag = False
+        is_you = ''
         for i in range(min(5, len(self.top))):
+            if self.top[i][2] == UUID:
+                flag = True
+                is_you = '(you)'
+
             font = pygame.font.Font(os.path.abspath('data/font.ttf'), 32)
             pygame.draw.rect(self.screen, BLACK,
                              (self.x + sum(self.ratio[:0]) * self.width, self.y + i * self.height,
@@ -70,7 +51,7 @@ class Table:
             pygame.draw.rect(self.screen, BLACK,
                              (self.x + sum(self.ratio[:1]) * self.width, self.y + i * self.height,
                               self.ratio[1] * self.width, self.height), 1)
-            text = font.render(self.top[i][0], True, TEXT_COLOR)
+            text = font.render(self.top[i][0] + is_you, True, TEXT_COLOR)
             self.screen.blit(text, (
                 self.x + sum(self.ratio[:1]) * self.width + (self.ratio[1] * self.width - text.get_width()) // 2,
                 self.y + i * self.height))
@@ -81,8 +62,7 @@ class Table:
             self.screen.blit(text, (
                 self.x + sum(self.ratio[:2]) * self.width + (self.ratio[2] * self.width - text.get_width()) // 2,
                 self.y + i * self.height))
-            if self.top[i][2] == UUID:
-                flag = True
+            is_you = ''
         if not flag:
             i = min(5, len(self.top))
             self.top.append(self.cur_user)
