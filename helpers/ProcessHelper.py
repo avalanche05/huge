@@ -199,6 +199,9 @@ def started_window():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                is_player_game = False
+                score = 0
             if is_player_game and event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                 set_pause()
             if not is_player_game and event.type == pygame.KEYDOWN and event.key in (
