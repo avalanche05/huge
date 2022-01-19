@@ -22,4 +22,4 @@ portal = pygame.sprite.Group()
 score = 0
 user = User(get_username(UUID) if is_mac_contain(UUID) else DEFAULT_NAME, UUID,
             get_best_score(UUID) if is_mac_contain(UUID) else 0)
-table = Table(0, 0, 60, 40, screen=screen)
+table = Table(0, 0, 75, 40, screen=screen)

@@ -64,4 +64,4 @@ def update_user_in_db(user):
 
 def get_best_score_top():
     """функция возвращает топ участников игры"""
-    return db.users.find({}, {'_id': 0, 'username': 1, 'best_score': 1})
+    return db.users.find({}, {'_id': 0, 'username': 1, 'best_score': 1, 'mac': 1})

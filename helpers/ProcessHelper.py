@@ -87,6 +87,10 @@ def started_window():
             cloud = Cloud((WIDTH, HEIGHT * 0.6 - 200), -platform_speed // FPS, clouds)
             cloud.move(randint(0, 80))
 
+    def top():
+        nonlocal is_top_show
+        is_top_show = not is_top_show
+
     def tutorial():
         nonlocal is_dino_dead, current_x
         while True:
@@ -98,10 +102,12 @@ def started_window():
             if is_dino_dead:
                 key = 'key up' if ai_step()[0] else 'key down'
                 is_dino_dead = False
-                shift = 800
+                shift = 600
                 for group in (barriers, enemies, clouds):
                     for sprite in group:
                         sprite.rect.x += shift
+                for sprite in enemies:
+                    sprite.rect.x += 240
                 current_x += shift
                 current_x %= PLATFORM_SPRITE_LENGTH
                 dino_sprite.rect.y = dino_sprite.start_y
@@ -158,12 +164,13 @@ def started_window():
         username = get_username(UUID)
     else:
         username = DEFAULT_NAME
-    username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 105), settings_sprites,
+    username_button = TextButton('Name', (WIDTH // 2, HEIGHT // 2 - 140), settings_sprites,
                                  start_text=username)
-    difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2 - 35), settings_sprites,
+    difficult_button = ChooseButton('Difficult', (WIDTH // 2, HEIGHT // 2 - 70), settings_sprites,
                                     args=['<Easy>', '<Medium>', '<Hard>'])
-    FunctionalButton('Tutorial', (WIDTH // 2, HEIGHT // 2 + 35), settings_sprites, function=tutorial)
-    FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 105), settings_sprites, function=terminate)
+    FunctionalButton('Tutorial', (WIDTH // 2, HEIGHT // 2), settings_sprites, function=tutorial)
+    FunctionalButton('Top', (WIDTH // 2, HEIGHT // 2 + 70), settings_sprites, function=top)
+    FunctionalButton('Quit', (WIDTH // 2, HEIGHT // 2 + 140), settings_sprites, function=terminate)
     dino_sprite = Dino((100, HEIGHT * 0.6 - 70), dino, is_start=True)
     platform_1 = Pole((0, HEIGHT * 0.6), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
     platform_2 = Pole((0, HEIGHT * 0.6), PLATFORM_SPRITE_LENGTH, poles, start_pos=0)
@@ -179,6 +186,7 @@ def started_window():
     text = font.render(STARTED_TEXT, True, TEXT_COLOR)
     is_player_game = False
     is_dino_dead = False
+    is_top_show = False
 
     def update_name():
 
@@ -193,7 +201,7 @@ def started_window():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+            if is_player_game and event.type == pygame.KEYDOWN and event.key == pygame.K_p:
                 set_pause()
             if not is_player_game and event.type == pygame.KEYDOWN and event.key in (
                     pygame.K_UP, pygame.K_DOWN):
@@ -240,10 +248,11 @@ def started_window():
             addend = addend if 0 <= alpha <= 255 else -addend
             screen.blit(text,
                         (WIDTH // 2 - text.get_width() // 2, HEIGHT - 100 + text.get_height() // 2))
+            if is_top_show:
+                table.render()
         transformation_surface.fill(color)
         screen.blit(transformation_surface, (0, 0))
         color[-1] = max(color[-1] - 5, 0)
-        table.render()
         update_screen()
 
 
