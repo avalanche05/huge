@@ -1,3 +1,6 @@
+import ssl
+
+import certifi as certifi
 import pymongo as pymongo
 
 from classes.User import User
@@ -5,7 +8,7 @@ from constant import MONGO_DB_CONNECTION
 
 
 def init_db():
-    client = pymongo.MongoClient(MONGO_DB_CONNECTION)
+    client = pymongo.MongoClient(MONGO_DB_CONNECTION, tlsCAFile=certifi.where())
     return client.huge
 
 
